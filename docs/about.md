@@ -61,3 +61,10 @@ What differs jsmoke from other project managers?
 > Don't get me wrong. This isn't a _"next gen product"_. It's manager
 > alternative for curious people (like me ^^) to understand project,
 > product and value development.
+
+## License
+
+This project is under the [MIT license]. You can access it by clicking
+[this link](https://github.com/nasccped/jsmoke/blob/main/LICENSE)!
+
+[MIT license]: https://opensource.org/license/mit
