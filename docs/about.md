@@ -12,6 +12,35 @@ boilerplate code and dependency resolving.
 [maven]: https://maven.apache.org/
 [gradle]: https://gradle.org/
 
+## jsmoke features
+
+This is a simple **todo** list for the app's features:
+
+> [!IMPORTANT]
+>
+> The stuff bellow is intended to be added to the app's core
+> functionality. It can be changed for _fix_/_design_ purposes.
+>
+> Consider:
+> - [x] <- as done
+> - [ ] <- on the features queue
+
+- [ ] create new projects
+    - [ ] using `new` subcommand
+    - [ ] using `init` subcommand
+- [ ] compile jsmoke based projects
+- [ ] run jsmoke based projects
+- [ ] clean jsmoke based projects bytecode
+- [ ] error reporting
+    - [ ] when compiling
+    - [ ] cli incorrect usage
+- [ ] error storing (like log) when compilation fails
+- [ ] version control system handling (like [cargo])
+- [ ] **env config** handling
+- [ ] _(More stuff may be added here later...)_
+
+[cargo]: https://github.com/rust-lang/cargo
+
 ## jsmoke pros & cons
 
 What differs jsmoke from other project managers?
