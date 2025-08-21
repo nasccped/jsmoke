@@ -3,6 +3,16 @@ jsmoke's about page
 
 Here, we'll talk about the jsmoke extra info.
 
+## Table of contents
+
+- [What is jsmoke](#what-is-jsmoke)
+- [jsmoke features](#jsmoke-features)
+- [jsmoke pros & cons](#jsmoke-pros--cons)
+    - [jsmoke advantages](#jsmoke-advantages)
+    - [jsmoke disadvantages](#jsmoke-disadvantages)
+    - [Overall result](#overall-result)
+- [License](#license)
+
 ## What is jsmoke?
 
 **jsmoke** is a project manager that targets small java applications.
