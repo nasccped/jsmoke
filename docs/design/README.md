@@ -53,3 +53,18 @@ Since **Rust** is a compiled system's language, the exit code will
 always be an integer type value (`i32` to be specific) where:
 - `0` means no error
 - `N where N != 0` means error
+
+A more elegant way to face the schema:
+
+<div align="center" id="figure-01-03">
+
+![an elegant app design schema](./figure-01.03.svg)
+
+_Figure 1.3: an elegant app design schema (details about the `Ok|Err`
+value can be found at the **Rust's result** footnote[^1])_
+
+</div>
+
+[^1]: Rust's `Result` is an enum type with two variants (`Ok(_)` and
+  `Err(_)`). Read more on the
+  [official doc page](https://doc.rust-lang.org/std/result/).
