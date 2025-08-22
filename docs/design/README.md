@@ -70,7 +70,7 @@ value can be found at the **Rust's result** footnote[^1])_
 
 ### 1.2 Source division
 
-> Why using a divided source code instead of a single one?
+> Why using a divided source code instead of a single codebase?
 
 When trying to maintain a program by adding features/fixing a bug,
 you'll notice that's a lot harder to do the job when all the code
