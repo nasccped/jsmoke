@@ -5,8 +5,11 @@ Jsmoke design related stuff.
 
 > [!IMPORTANT]
 >
-> All images here was made using [draw.io], [Camunda] and/or
-> [Microsoft Paint] free features.
+> 1. all images here was made using [draw.io], [Camunda] and/or
+> [Microsoft Paint] free features
+> 2. a lot of concepts are explained here. I've placed some content
+>    sources at this page's footnotes[^1]. Unfortunately, is not
+>    sorted alphabetically but you can take a look
 
 [draw.io]: https://www.drawio.com/
 [Camunda]: https://camunda.com/
