@@ -68,6 +68,29 @@ value can be found at the **Rust's result** footnote[^1])_
 
 </div>
 
+### 1.2 Source division
+
+> Why using a divided source code instead of a single one?
+
+When trying to maintain a program by adding features/fixing a bug,
+you'll notice that's a lot harder to do the job when all the code
+is _"glued together"[^2]_.
+
+<div align="center" id="figure-01-04">
+
+![include hell representation](./figure-01.04.jpg)
+
+_Figure 1.4: example of include hell (from C lang)_
+
+</div>
+
+So, we can divide our app into different pieces of features where one
+**uses** the other but they aren't dependent.
+
 [^1]: Rust's `Result` is an enum type with two variants (`Ok(_)` and
   `Err(_)`). Read more on the
   [official doc page](https://doc.rust-lang.org/std/result/).
+[^2]: Glue code is a term used to describe a code that works like a
+  bridge between different components of the application. It's a
+  important concept in coding scene but can lead the project to an
+  unreadable/irreparable state when done poorly.
