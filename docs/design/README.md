@@ -87,6 +87,9 @@ _Figure 1.4: example of include hell (from C lang)_
 So, we can divide our app into different pieces of features where one
 **uses** the other but they aren't dependent.
 
+Fortunately, cargo provides a feature called workspace[^3], so, we
+can easily manage our project as separated components.
+
 [^1]: Rust's `Result` is an enum type with two variants (`Ok(_)` and
   `Err(_)`). Read more on the
   [official doc page](https://doc.rust-lang.org/std/result/).
@@ -94,3 +97,6 @@ So, we can divide our app into different pieces of features where one
   bridge between different components of the application. It's a
   important concept in coding scene but can lead the project to an
   unreadable/irreparable state when done poorly.
+[^3]: [workspace](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html)
+  is a Cargo's feature that allow us to handle different code
+  components into a single rust application.
