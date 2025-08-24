@@ -6,6 +6,7 @@ Here, we'll talk about the jsmoke extra info.
 ## Table of contents
 
 - [What is jsmoke](#what-is-jsmoke)
+- [Kojamp, its ancestor](#kojamp-its-ancestor)
 - [jsmoke features](#jsmoke-features)
 - [jsmoke pros & cons](#jsmoke-pros--cons)
     - [jsmoke advantages](#jsmoke-advantages)
@@ -21,6 +22,15 @@ boilerplate code and dependency resolving.
 
 [maven]: https://maven.apache.org/
 [gradle]: https://gradle.org/
+
+## Kojamp, its ancestor
+
+The **jsmoke** app is the **kojamp** successor. At first, kojamp was
+intended to target Java and Kotlin applications, but a lot of
+redesigns became necessary. You can find more info at
+[kojamp's official repository].
+
+[kojamp's official repository]: https://github.com/nasccped/kojamp
 
 ## jsmoke features
 
