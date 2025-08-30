@@ -1,0 +1,10 @@
+[package]
+name = "jsmoke_lib"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+doctest = false
+
+[dependencies]
+clap.workspace = true
