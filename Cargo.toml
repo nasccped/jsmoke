@@ -12,3 +12,6 @@ version = "0.1.0"
 edition = "2024"
 license = "MIT"
 description = "Simple project manager for simple java apps"
+
+[workspace.dependencies]
+clap = "4.5.45"
