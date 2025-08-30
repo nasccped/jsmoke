@@ -13,6 +13,7 @@ pub fn subcommand() -> Command {
             arg_source_path(),
             arg_out_path(),
             arg_lock_version(),
+            arg_main_func(),
         ])
 }
 
@@ -87,6 +88,15 @@ fn arg_lock_version() -> Arg {
         .help(r#"Define a dev. kit version by a regex ("X.Y.Z" -> greater or equal | "=X.Y.Z" -> strictly equals)"#)
 }
 
+fn arg_main_func() -> Arg {
+    Arg::new("main-func")
+        .long("main-func")
+        .short('M')
+        .action(ArgAction::Set)
+        .value_name("CLASS PATH")
+        .help(r#"Path to `public static void main` entrypoint ("Main" as default). Expecting package format, like: "example.JavaClass"#)
+}
+
 #[cfg(test)]
 mod tests {
 
@@ -113,6 +123,8 @@ mod tests {
             "out-name",
             "-L",
             "=24.1.07",
+            "--main-func",
+            "innerpack.NotMain",
         ];
         let mtc = sub.get_matches_from(args);
         assert_eq!(mtc.force_get_one("name"), "SomeName");
@@ -128,5 +140,6 @@ mod tests {
         assert_eq!(mtc.force_get_one("source-path"), "project-name");
         assert_eq!(mtc.force_get_one("out-path"), "out-name");
         assert_eq!(mtc.force_get_one("lock-version"), "=24.1.07");
+        assert_eq!(mtc.force_get_one("main-func"), "innerpack.NotMain");
     }
 }
