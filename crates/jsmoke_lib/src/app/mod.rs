@@ -6,7 +6,7 @@
 //!
 //! The app is built through a trait (called [`App`]) function that
 //! generates the schema. All the subcommands can be found at
-//! `cli::subcommands` private module.
+//! `subcommands` private module.
 //!
 //! The subcommand's context dependecies can be found at
 //! [`contexts`] crate.
@@ -14,8 +14,9 @@
 //! Each context type can implement a [`crate::utils`] trait/feature
 //! to help on input handling.
 
-mod cli;
 mod contexts;
+mod subcommands;
+mod app_core;
 
-pub use cli::App;
-pub use cli::AppOutput;
+pub use app_core::App;
+pub use app_core::AppOutput;
