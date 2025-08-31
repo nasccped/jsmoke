@@ -35,6 +35,8 @@
 //! - [`init::subcommand`] will return the `init` subcommand
 //! - `...`
 
+mod init;
 mod new;
 
+pub use init::subcommand as init;
 pub use new::subcommand as new;
