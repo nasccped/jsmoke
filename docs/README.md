@@ -7,6 +7,7 @@ A more deep understanding about JSmoke, it's features and philosophy.
 - [A little about](#a-little-about)
   - [Naming](#naming)
   - [Why does JSmoke exists?](#why-does-jsmoke-exists)
+- [Kojamp, its predecessor](#kojamp-its-predecessor)
 
 ## A little about
 
@@ -32,10 +33,30 @@ So I though:
 >
 > No overloaded and fancy IDEs. No heavy-tooling overhead. Just you,
 > the code and the final result + useful security/workflow features
-> that won't take more than millisecs to run.
+> that won't take more than millisecs[^millisecs] to run.
 
 Then, JSmoke was born.
+
+## Kojamp, its predecessor
+
+[Kojamp] was the first version of this software but was discontinued.
+It was intended to offer support for both `java` and `kotlin`
+applications.
+
+The confuse java support turned impossible to implement `kotlin`
+features. Also, due to aesthetic code principles and implementing
+I've decided to redo the program from scratch with a new look.
+
+> [!NOTE]
+>
+> Even discontinued, [Kojamp] still works _(not the way I want, but
+> it does the job 😁)_.
 
 [maven]: https://maven.apache.org/
 [gradle]: https://gradle.org/
 [Makefile]: https://www.gnu.org/software/make/manual/make.html
+[Kojamp]: https://github.com/nasccped/kojamp
+
+[^millisecs]: `millisecs` stands for milliseconds, one thousandth
+  (`0.001` or <code>10<sup>−3</sup></code> or `1/1000`) of a second
+  (or `1000` microseconds).
