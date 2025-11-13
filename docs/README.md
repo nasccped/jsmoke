@@ -13,20 +13,20 @@ A more deep understanding about JSmoke, it's features and philosophy.
 
 ## A little about
 
-JSmoke is a java project manager intended to be simple and run fast
+JSmoke is a Java project manager intended to be simple and run fast
 enough that you forget you're using a manager.
 
 ### Naming
 
-The _"JSmoke"_ comes from _"java smoke"_. A cup of coffee blazingly
+The _"JSmoke"_ comes from _"Java smoke"_. A cup of coffee blazingly
 hot (written in Rust, btw).
 
 ### Why does JSmoke exists?
 
-When writing java programs, I noticed that a [Makefile] was kinda
+When writing Java programs, I noticed that a [Makefile] was kinda
 boring to rewrite every time a new project was created (still better
-than passing file paths by the cmdline). Even using [maven] or
-[gradle] looks bad. It's a too-heavy tooling for my simple todo-list.
+than passing file paths by the cmdline). Even using [Maven] or
+[Gradle] looks bad. It's a too-heavy tooling for my simple todo-list.
 
 So I though:
 
@@ -42,10 +42,10 @@ Then, JSmoke was born.
 ## Kojamp, its predecessor
 
 [Kojamp] was the first version of this software but was discontinued.
-It was intended to offer support for both `java` and `kotlin`
+It was intended to offer support for both `Java` and `Kotlin`
 applications.
 
-The confuse java support turned impossible to implement `kotlin`
+The confuse Java support turned impossible to implement `Kotlin`
 features. Also, due to aesthetic code principles and implementing
 I've decided to redo the program from scratch with a new look.
 
@@ -57,7 +57,7 @@ I've decided to redo the program from scratch with a new look.
 ## Features
 
 Since JSmoke is a manager it provides similar features already
-provided in other managers, such as [maven] or [gradle].
+provided in other managers, such as [Maven] or [Gradle].
 
 Here's a small check list to stay tuned with the project progress:
 
@@ -72,8 +72,8 @@ Here's a small check list to stay tuned with the project progress:
 This project is under the [MIT License]. You can read the License
 file by [clicking here](https://github.com/nasccped/jsmoke/blob/main/LICENSE)!
 
-[maven]: https://maven.apache.org/
-[gradle]: https://gradle.org/
+[Maven]: https://maven.apache.org/
+[Gradle]: https://gradle.org/
 [Makefile]: https://www.gnu.org/software/make/manual/make.html
 [Kojamp]: https://github.com/nasccped/kojamp
 [MIT License]: https://opensource.org/license/mit
@@ -82,7 +82,7 @@ file by [clicking here](https://github.com/nasccped/jsmoke/blob/main/LICENSE)!
   (`0.001` or <code>10<sup>−3</sup></code> or `1/1000`) of a second
   (or `1000` microseconds).
 [^stderr]: `stderr`, or **Standard Error**, is one of three standard
-  data streams in Unix-like operating systems (the others being stdin
-  for input and stdout for output). It is a dedicated channel for
-  programs to output error messages, warnings, and diagnostic
-  information.
+  data streams in Unix-like operating systems (the others being
+  `stdin` for input and `stdout` for output). It is a dedicated
+  channel for programs to output error messages, warnings, and
+  diagnostic information.
