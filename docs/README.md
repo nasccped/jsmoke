@@ -8,6 +8,7 @@ A more deep understanding about JSmoke, it's features and philosophy.
   - [Naming](#naming)
   - [Why does JSmoke exists?](#why-does-jsmoke-exists)
 - [Kojamp, its predecessor](#kojamp-its-predecessor)
+- [License](#license)
 
 ## A little about
 
@@ -52,10 +53,16 @@ I've decided to redo the program from scratch with a new look.
 > Even discontinued, [Kojamp] still works _(not the way I want, but
 > it does the job 😁)_.
 
+## License
+
+This project is under the [MIT License]. You can read the License
+file by [clicking here](https://github.com/nasccped/jsmoke/blob/main/LICENSE)!
+
 [maven]: https://maven.apache.org/
 [gradle]: https://gradle.org/
 [Makefile]: https://www.gnu.org/software/make/manual/make.html
 [Kojamp]: https://github.com/nasccped/kojamp
+[MIT License]: https://opensource.org/license/mit
 
 [^millisecs]: `millisecs` stands for milliseconds, one thousandth
   (`0.001` or <code>10<sup>−3</sup></code> or `1/1000`) of a second
