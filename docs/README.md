@@ -9,6 +9,7 @@ A more deep understanding about JSmoke, it's features and philosophy.
   - [Why does JSmoke exists?](#why-does-jsmoke-exists)
 - [Kojamp, its predecessor](#kojamp-its-predecessor)
 - [Features](#features)
+  - [Non essential features](#non-essential-features)
 - [License](#license)
 
 ## A little about
@@ -67,6 +68,31 @@ Here's a small check list to stay tuned with the project progress:
 - [ ] 🧼 clear generated files _(bytecode)_
 - [ ] 📰 `stderr`[^stderr] report logging
 
+### Non essential features
+
+Here's other features that contains lower priority but are already in
+the implementing queue:
+
+- [ ] **create workspace file:** create a new workspace file (like
+  `pom.xml`[^pom.xml] in Java or `Cargo.toml`[^cargo.toml] in Rust)
+  to handle security checks and execute specific tasks before
+  compile/run (version/`javac` args).
+- [ ] **`javac`/`java` version locking:** lock version project to
+  regex matching versions
+    - any matching:
+      - `x.y.z`: major, minor and patch will be `x`, `y` and `z`
+        respectively.
+    - minimum version:
+      - `^=1.0.0`|`1.0.0`: greater or equals than...
+      - `^1.0.0`: explicit greater than...
+    - maximum version:
+      - `-=1.0.0`: less or equals than...
+      - `-1.0.0`: explicit less than...
+    - range:
+      - `<MIN>~<MAX>`: any version between the `<MIN>` and `<MAX>`
+        (**note that** `<MIN>` and `<MAX>` will follow all rules
+        mentioned above - even _(ex/in)clusive_ ones).
+
 ## License
 
 This project is under the [MIT License]. You can read the License
@@ -86,3 +112,11 @@ file by [clicking here](https://github.com/nasccped/jsmoke/blob/main/LICENSE)!
   `stdin` for input and `stdout` for output). It is a dedicated
   channel for programs to output error messages, warnings, and
   diagnostic information.
+[^pom.xml]: The `pom.xml` file, which stands for _"Project Object
+  Model"_, is the fundamental configuration file used by **Apache
+  Maven**, a build automation tool primarily for Java projects. It is
+  an XML file located in the root directory of a Maven project.
+[^cargo.toml]: `Cargo.toml` is the manifest file used by Cargo,
+  Rust's package manager and build system. It is a crucial component
+  of any Rust project managed by Cargo, defining the project's
+  configuration and dependencies.
