@@ -8,6 +8,7 @@ A more deep understanding about JSmoke, it's features and philosophy.
   - [Naming](#naming)
   - [Why does JSmoke exists?](#why-does-jsmoke-exists)
 - [Kojamp, its predecessor](#kojamp-its-predecessor)
+- [Features](#features)
 - [License](#license)
 
 ## A little about
@@ -53,6 +54,19 @@ I've decided to redo the program from scratch with a new look.
 > Even discontinued, [Kojamp] still works _(not the way I want, but
 > it does the job 😁)_.
 
+## Features
+
+Since JSmoke is a manager it provides similar features already
+provided in other managers, such as [maven] or [gradle].
+
+Here's a small check list to stay tuned with the project progress:
+
+- [ ] 🆕 create new projects
+- [ ] 🏗️ build _(compile)_ projects
+- [ ] 🏎️ run project _(bytecode)_
+- [ ] 🧼 clear generated files _(bytecode)_
+- [ ] 📰 `stderr`[^stderr] report logging
+
 ## License
 
 This project is under the [MIT License]. You can read the License
@@ -67,3 +81,8 @@ file by [clicking here](https://github.com/nasccped/jsmoke/blob/main/LICENSE)!
 [^millisecs]: `millisecs` stands for milliseconds, one thousandth
   (`0.001` or <code>10<sup>−3</sup></code> or `1/1000`) of a second
   (or `1000` microseconds).
+[^stderr]: `stderr`, or **Standard Error**, is one of three standard
+  data streams in Unix-like operating systems (the others being stdin
+  for input and stdout for output). It is a dedicated channel for
+  programs to output error messages, warnings, and diagnostic
+  information.
