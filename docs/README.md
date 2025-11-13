@@ -67,8 +67,8 @@ checklist:
 
 ### Features (core)
 
-Since JSmoke is a manager it provides similar features already
-provided in other managers, such as [Maven] or [Gradle]:
+Since JSmoke is a manager, it provides features inspired by other
+managers (i.e., [Maven] or [Gradle]):
 
 - [ ] 🆕 create new projects
 - [ ] 🏗️ build _(compile)_ projects
