@@ -9,7 +9,8 @@ A more deep understanding about JSmoke, it's features and philosophy.
   - [Why does JSmoke exists?](#why-does-jsmoke-exists)
 - [Kojamp, its predecessor](#kojamp-its-predecessor)
 - [Features](#features)
-  - [Non essential features](#non-essential-features)
+  - [Features (core)](#features-core)
+  - [Features (non essential)](#features-non-essential)
 - [License](#license)
 
 ## A little about
@@ -57,10 +58,17 @@ I've decided to redo the program from scratch with a new look.
 
 ## Features
 
-Since JSmoke is a manager it provides similar features already
-provided in other managers, such as [Maven] or [Gradle].
+The project's features can be separated in two different groups:
+- core: essential program features
+- non essential: useful/cool features but with lower priority
 
-Here's a small check list to stay tuned with the project progress:
+Stay tuned with development progress by checking out the features
+checklist:
+
+### Features (core)
+
+Since JSmoke is a manager it provides similar features already
+provided in other managers, such as [Maven] or [Gradle]:
 
 - [ ] 🆕 create new projects
 - [ ] 🏗️ build _(compile)_ projects
@@ -68,7 +76,7 @@ Here's a small check list to stay tuned with the project progress:
 - [ ] 🧼 clear generated files _(bytecode)_
 - [ ] 📰 `stderr`[^stderr] report logging
 
-### Non essential features
+### Features (non essential)
 
 Here's other features that contains lower priority but are already in
 the implementing queue:
