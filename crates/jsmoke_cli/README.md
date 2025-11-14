@@ -1,4 +1,4 @@
 # JSmoke CLI
 
-This module provides the JSmoke cli parser and application traits
+This module provides the JSmoke CLI parser and application traits
 implementer.
