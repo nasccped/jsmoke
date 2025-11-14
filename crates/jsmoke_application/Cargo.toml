@@ -3,6 +3,7 @@ name = "jsmoke_application"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description.workspace = true
+description = "JSmoke application use cases"
+readme = "README.md"
 
 [dependencies]
