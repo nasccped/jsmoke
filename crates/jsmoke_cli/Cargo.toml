@@ -1,0 +1,9 @@
+[package]
+name = "jsmoke_cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "JSmoke CLI parser and application implementer"
+
+[dependencies]
+clap = { version = "4.5.45", features = ["derive"] }
