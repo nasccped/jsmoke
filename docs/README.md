@@ -82,24 +82,24 @@ Here's other features that contains lower priority but are already in
 the implementing queue:
 
 - [ ] **create workspace file:** create a new workspace file (like
-  `pom.xml`[^pom.xml] in Java or `Cargo.toml`[^cargo.toml] in Rust)
-  to handle security checks and execute specific tasks before
-  compile/run (version/`javac` args).
+      `pom.xml`[^pom.xml] in Java or `Cargo.toml`[^cargo.toml] in
+      to handle security checks and execute specific tasks before
+      Rust) compile/run (version/`javac` args).
 - [ ] **`javac`/`java` version locking:** lock version project to
-  regex matching versions
-    - any matching:
-      - `x.y.z`: major, minor and patch will be `x`, `y` and `z`
-        respectively.
-    - minimum version:
-      - `^=1.0.0`|`1.0.0`: greater or equals than...
-      - `^1.0.0`: explicit greater than...
-    - maximum version:
-      - `-=1.0.0`: less or equals than...
-      - `-1.0.0`: explicit less than...
-    - range:
-      - `<MIN>~<MAX>`: any version between the `<MIN>` and `<MAX>`
-        (**note that** `<MIN>` and `<MAX>` will follow all rules
-        mentioned above - even _(ex/in)clusive_ ones).
+      regex matching versions
+  - any matching:
+    - `x.y.z`: major, minor and patch will be `x`, `y` and `z`
+      respectively.
+  - minimum version:
+    - `^=1.0.0`|`1.0.0`: greater or equals than...
+    - `^1.0.0`: explicit greater than...
+  - maximum version:
+    - `-=1.0.0`: less or equals than...
+    - `-1.0.0`: explicit less than...
+  - range:
+    - `<MIN>~<MAX>`: any version between the `<MIN>` and `<MAX>`
+      (**note that** `<MIN>` and `<MAX>` will follow all rules
+      mentioned above - even _(ex/in)clusive_ ones).
 
 ## License
 
