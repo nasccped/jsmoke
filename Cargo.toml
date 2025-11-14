@@ -14,4 +14,3 @@ license = "MIT"
 description = "Simple project manager for simple java apps"
 
 [workspace.dependencies]
-clap = "4.5.45"
