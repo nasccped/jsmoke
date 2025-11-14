@@ -1,3 +1,10 @@
+/*
+ * The doc bellow is copy+paste from the '../README.md' file since
+ * the `#![doc = include_str!("...")]` macro doesn't behave as
+ * expected when offering lsp features (description). Changing both
+ * files (this doc and README.md) is necessary to maintain info
+ *  sync. */
+
 //! # JSmoke Application
 //!
 //! This module provides the standard JSmoke features as traits.
