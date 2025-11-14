@@ -100,6 +100,18 @@ the implementing queue:
     - `<MIN>~<MAX>`: any version between the `<MIN>` and `<MAX>`
       (**note that** `<MIN>` and `<MAX>` will follow all rules
       mentioned above - even _(ex/in)clusive_ ones).
+- [ ] **manage edition(s):** allow the program to behave different
+      depending on the program's edition **(avoid breaking changes)**
+- [ ] **auto-init repository:** init a project repository by default
+      when not set (like Rust's Cargo):
+  - `git`
+  - `hg` (Mercurial)
+  - `pijul`
+  - `svn` (Subversion)
+  - _none_ (no vcs init)
+- [ ] **environment command checking:** smart ways to check local
+      commands before executing them _(`javac` not found and
+      **compile error** will both return `1` from OS)_.
 
 ## License
 
