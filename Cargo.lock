@@ -114,7 +114,8 @@ checksum = "a6cb138bb79a146c1bd460005623e142ef0181e3d0219cb493e02f7d08a35695"
 name = "jsmoke"
 version = "0.1.0"
 dependencies = [
- "jsmoke_cli",
+ "jsmoke_cli 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "jsmoke_utils 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -129,8 +130,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "jsmoke_cli"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad3de28e57ea96afbc811801d7479bc55ec18d018c7ed04277aa3e4a66885b29"
+dependencies = [
+ "clap",
+]
+
+[[package]]
 name = "jsmoke_utils"
 version = "0.1.0"
+
+[[package]]
+name = "jsmoke_utils"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2bd5c918a51a2887f05d5ddc74442a04428f1a3f8bd0614ce8276675807aa8e1"
 
 [[package]]
 name = "once_cell_polyfill"
