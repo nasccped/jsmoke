@@ -8,7 +8,6 @@ use clap::Parser;
     name = "jsmk",
     bin_name = "jsmk",
     author = "nasccped",
-    version = env!("CARGO_PKG_VERSION"),
     about = "A simple project manager for simple java apps",
     styles = style::APP_STYLE
 )]
