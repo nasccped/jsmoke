@@ -1,7 +1,3 @@
-//! # JSmoke Utilities
-//!
-//! This module provides the JSmoke utilities:
-//! - helper types
-//! - useful traits
-//! - so on...
+#![doc = include_str!("../README.md")]
+
 pub mod exit;

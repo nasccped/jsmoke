@@ -1,7 +1,4 @@
-//! # JSmoke CLI
-//!
-//! This module provides the JSmoke CLI parser and application traits
-//! implementer.
+#![doc = include_str!("../README.md")]
 
 mod app;
 pub mod prelude;
