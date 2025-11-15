@@ -11,21 +11,16 @@ exclude = [
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
-license-file = "LICENSE"
 authors = ["nasccped <pdbt.contact@gmail.com>"]
 description = "Simple project manager for simple java apps"
 repository = "https://github.com/nasccped/jsmoke"
-keywords = ["java", "project manager", "cli"]
+keywords = ["java", "project-manager", "cli"]
 categories = ["command-line-utilities"]
 exclude = [
   "target/",
   ".git/",
   ".gitignore"
 ]
-
-# this is intended to works (since each module contains it own README
-# file)
-readme = "README.md"
 
 [workspace.dependencies]
 jsmoke_application = "0.1.0"
