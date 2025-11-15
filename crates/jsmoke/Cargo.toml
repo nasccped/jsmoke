@@ -16,5 +16,5 @@ name = "jsmk"
 path = "src/main.rs"
 
 [dependencies]
-jsmoke_cli = { path = "../jsmoke_cli" }
-jsmoke_utils = { path = "../jsmoke_utils/" }
+jsmoke_cli.workspace = true
+jsmoke_utils.workspace = true
