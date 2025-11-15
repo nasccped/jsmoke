@@ -14,5 +14,5 @@ use clap::Parser;
 pub struct JsmkApp {
     /// Enable verbose (detailed info printing) during process.
     #[arg(long)]
-    verbose: bool,
+    pub verbose: bool,
 }
