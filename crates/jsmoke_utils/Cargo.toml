@@ -1,8 +1,15 @@
 [package]
 name = "jsmoke_utils"
-version.workspace = true
+version = "0.1.0"
+description = "JSmoke program utilities"
 edition.workspace = true
+authors.workspace = true
+repository.workspace = true
+readme.workspace = true
 license.workspace = true
-description.workspace = true
+license-file.workspace = true
+keywords.workspace = true
+categories.workspace = true
+exclude.workspace = true
 
 [dependencies]
