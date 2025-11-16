@@ -7,3 +7,4 @@
 //! reading each documentation.
 
 pub mod auto_trim;
+pub mod chunk_by_any;
