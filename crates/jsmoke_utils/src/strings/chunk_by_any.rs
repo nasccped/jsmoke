@@ -29,40 +29,22 @@ impl<'a> ChunkByAny<'a> for String {
     type ByType = &'a str;
     type Output = &'a str;
 
-    /// # Panics
+    /// # Important
     ///
-    /// This program will panic if any of elements within `by` param
-    /// is empty string "" (since there's not a way to chunk empty
-    /// string from a string content).
+    /// This functions is just a wrapper for the
+    /// [`str::chunk_by_any`] function. Since the return type is a
+    /// `self` reference based, the `String` implement will behaves the
+    /// same as the `str` impl.
+    ///
+    /// Consider reading the [`ChunkByAny`] implement's doc for
+    /// [`str`] type.
     fn chunk_by_any(&'a self, by: impl AsRef<[&'a str]>) -> Vec<&'a str> {
-        let mut v = Vec::new();
-        let mut slice = self.as_str();
-        let seps = by.as_ref();
-        if seps.contains(&"") {
-            panic!("the `ChunkByAny`'s (by) param can't hold empty str!");
-        } else if seps.is_empty() {
-            v.push(slice);
-            return v;
-        } else if slice.is_empty() {
-            return v;
-        }
-        while let Some((pos, sample)) = seps
-            .iter()
-            .filter_map(|sample| slice.find(sample).map(|pos| (pos, sample)))
-            .min_by_key(|(pos, _)| *pos)
-        {
-            v.push(&slice[..pos]);
-            v.push(sample);
-            slice = &slice[(pos + sample.len())..];
-        }
-        if !slice.is_empty() {
-            v.push(slice);
-        }
-        v
+        let s: &'a str = self.as_ref();
+        s.chunk_by_any(by)
     }
 }
 
-impl<'a> ChunkByAny<'a> for &'a str {
+impl<'a> ChunkByAny<'a> for str {
     type ByType = &'a str;
     type Output = &'a str;
 
@@ -72,8 +54,8 @@ impl<'a> ChunkByAny<'a> for &'a str {
     /// is empty string "" (since there's not a way to chunk empty
     /// string from a string content).
     fn chunk_by_any(&'a self, by: impl AsRef<[&'a str]>) -> Vec<&'a str> {
-        let mut v = Vec::new();
-        let mut slice = *self;
+        let mut v: Vec<&'a str> = Vec::new();
+        let mut slice = self;
         let seps = by.as_ref();
         if seps.contains(&"") {
             panic!("the `ChunkByAny`'s (by) param can't hold empty str!");
@@ -106,7 +88,7 @@ mod private_mod {
     //! trait (which is private).
     pub trait Sealed {}
     impl Sealed for String {}
-    impl Sealed for &str {}
+    impl Sealed for str {}
 }
 
 #[cfg(test)]
@@ -137,8 +119,7 @@ mod tests {
             ["#", "@", "&", "*", "!"],
             ["&", "@", "!", "*", "#"],
         ];
-        let s: String = "Please!Sir*Separate@My#String&".into();
-        let r = s.as_str();
+        let s = "Please!Sir*Separate@My#String&";
         let expected = [
             "Please", "!", "Sir", "*", "Separate", "@", "My", "#", "String", "&",
         ];
@@ -146,23 +127,13 @@ mod tests {
             assert_eq!(
                 s.chunk_by_any(sample),
                 expected,
-                "Failed to assert String #{i}"
-            );
-            assert_eq!(
-                r.chunk_by_any(sample),
-                expected,
-                "Failed to assert str reference #{i}"
+                "Failed to assert string: #{i}"
             );
         });
     }
 
     #[test]
     fn empty_str() {
-        assert_eq!(
-            "".to_string().chunk_by_any(["a sample"]),
-            [] as [&str; 0],
-            "Failed to assert String"
-        );
         assert_eq!(
             "".chunk_by_any(["a sample"]),
             [] as [&str; 0],
@@ -175,26 +146,14 @@ mod tests {
         assert_eq!(
             "Some string example".to_string().chunk_by_any([]),
             ["Some string example"],
-            "Failed to assert String"
-        );
-        assert_eq!(
-            "Some string example".to_string().chunk_by_any([]),
-            ["Some string example"],
             "Failed to assert str reference"
         );
     }
 
     #[test]
     #[should_panic]
-    fn empty_string_panics1() {
-        let s = "String example 1";
-        let _ = s.chunk_by_any([""]);
-    }
-
-    #[test]
-    #[should_panic]
-    fn empty_string_panics2() {
-        let s: String = "String example 2".into();
+    fn empty_string_panics() {
+        let s = "String example";
         let _ = s.chunk_by_any([""]);
     }
 }
