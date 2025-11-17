@@ -48,6 +48,26 @@ impl<'a> ChunkByAny<'a> for str {
     type ByType = &'a str;
     type Output = &'a str;
 
+    /// # Precedence order
+    ///
+    /// If a `by` element is a substring of another `by` element, the
+    /// first element that appears in the `by` as array (since `by`
+    /// must implement the [`AsRef<ArrayRef>`]) will be prefered when
+    /// searching for sample within the `self` input.
+    ///
+    /// With this in mind, consider putting the substrings as latest
+    /// itens in `by` param:
+    ///
+    /// ```compile_fail
+    /// // will return ["Trying", "#", "@", "to", "#", "chunk", "@", "string"]
+    /// // never chunks the "#@" item...
+    /// let bad_chuncking = "Trying#@to#chunk@string".chunk_by_any(["#", "@", "#@"]);
+    ///
+    /// // will return ["Trying", "#@", "to", "#", "chunk", "@", "string"]
+    /// // chunks the "#@" item...
+    /// let good_chuncking = "Trying#@to#chunk@string".chunk_by_any(["#@", "#", "@"]);
+    /// ```
+    ///
     /// # Panics
     ///
     /// This program will panic if any of elements within `by` param
@@ -70,7 +90,10 @@ impl<'a> ChunkByAny<'a> for str {
             .filter_map(|sample| slice.find(sample).map(|pos| (pos, sample)))
             .min_by_key(|(pos, _)| *pos)
         {
-            v.push(&slice[..pos]);
+            let temp = &slice[..pos];
+            if !temp.is_empty() {
+                v.push(temp);
+            }
             v.push(sample);
             slice = &slice[(pos + sample.len())..];
         }
@@ -153,6 +176,16 @@ mod tests {
             ["Some string example"],
             "Failed to assert str reference"
         );
+    }
+
+    #[test]
+    fn sample_precedence() {
+        let bad_chuncking = "Trying#@to#chunk@string".chunk_by_any(["#", "@", "#@"]);
+        let expect = ["Trying", "#", "@", "to", "#", "chunk", "@", "string"];
+        assert_eq!(bad_chuncking, expect);
+        let good_chuncking = "Trying#@to#chunk@string".chunk_by_any(["#@", "#", "@"]);
+        let expect = ["Trying", "#@", "to", "#", "chunk", "@", "string"];
+        assert_eq!(good_chuncking, expect);
     }
 
     #[test]
