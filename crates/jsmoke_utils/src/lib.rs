@@ -2,3 +2,4 @@
 
 pub mod exit;
 pub mod strings;
+pub mod verbose;
