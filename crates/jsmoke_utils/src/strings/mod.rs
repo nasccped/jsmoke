@@ -8,3 +8,4 @@
 
 pub mod auto_trim;
 pub mod chunk_by_any;
+pub mod repr;
