@@ -59,7 +59,7 @@ impl<'a> ChunkByAny<'a> for str {
         let seps = by.as_ref();
         if seps.contains(&"") {
             panic!("the `ChunkByAny`'s (by) param can't hold empty str!");
-        } else if seps.is_empty() {
+        } else if seps.is_empty() && !slice.is_empty() {
             v.push(slice);
             return v;
         } else if slice.is_empty() {
@@ -139,6 +139,11 @@ mod tests {
             [] as [&str; 0],
             "Failed to assert str reference"
         );
+    }
+
+    #[test]
+    fn empty_str_no_sample() {
+        assert_eq!("".chunk_by_any([]), [] as [&str; 0])
     }
 
     #[test]
