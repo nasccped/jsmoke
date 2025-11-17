@@ -15,11 +15,6 @@ const MODULE_SEPARATOR: &str = "::";
 /// Type elements commonly present within type syntax.
 const TYPE_ELEMENTS: [&str; 6] = ["&", "'a", "<>", "<", ">", "_"];
 
-/// Turns a [`str`] into bright red (private).
-fn b_red(value: &str) -> String {
-    value.bright_red().to_string()
-}
-
 /// Turns a [`str`] into bright green (private).
 fn b_green(value: &str) -> String {
     value.bright_green().to_string()
@@ -60,7 +55,7 @@ impl<'a, T: AutoTrim<'a>> ColorHighlights<'a> for T {
         let (ticks, item) = ticking::untick(self.auto_trim());
         let mod_str = item
             .split(MODULE_SEPARATOR)
-            .map(b_red)
+            .map(b_magenta)
             .collect::<Vec<_>>()
             .join(b_white(MODULE_SEPARATOR).as_str());
         if ticks {
