@@ -1,6 +1,6 @@
 [package]
 name = "jsmoke_application"
-version = "0.1.0"
+version = "1.0.0"
 description = "JSmoke application use cases"
 edition.workspace = true
 authors.workspace = true
