@@ -1,5 +1,8 @@
 # JSmoke Application
 
+[![crates io](https://img.shields.io/crates/v/jsmoke_application.svg)](https://crates.io/crates/jsmoke_application)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue?)](#)
+
 This module provides the standard JSmoke features as traits.
 
 ## Traits and its functions
@@ -40,11 +43,3 @@ When a single function returns different kind of errors, consider
 using [`Result<_, Box<dyn Error>>`] instead. Since the [`Err`]
 variant implements the [`std::error::Error`] trait, any error can
 be used.
-
-[`Result<T, U>`]: https://doc.rust-lang.org/stable/std/result/enum.Result.html
-[`Option<T>`]: https://doc.rust-lang.org/stable/std/option/enum.Option.html
-[`Result`]: https://doc.rust-lang.org/stable/std/result/enum.Result.html
-[`Err`]: https://doc.rust-lang.org/stable/std/result/enum.Result.html#variant.Err
-[`std::error::Error`]: https://doc.rust-lang.org/stable/std/error/trait.Error.html
-[`Box<T: Error>`]: https://doc.rust-lang.org/std/boxed/struct.Box.html
-[`Result<_, Box<dyn Error>>`]: #
