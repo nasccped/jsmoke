@@ -1,10 +1,7 @@
 //! # Error printing module
 //!
 //! Provides error printing reserved utilities (majorly traits).
-use crate::visuals::tags::TagKind;
-
-/// Tag used when printing an error.
-const ERROR_TAG: TagKind = TagKind::ErrorKind;
+use crate::visuals::tags::ERROR_TAG;
 
 /// Trait for pretty error printing.
 ///

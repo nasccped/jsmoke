@@ -1,10 +1,7 @@
 //! # Warning printing module
 //!
 //! Provides warning printing reserved utilities (majorly traits).
-use crate::visuals::tags::TagKind;
-
-/// Tag used when printing an warning.
-const WARN_TAG: TagKind = TagKind::WarningKind;
+use crate::visuals::tags::WARNING_TAG;
 
 /// Trait for pretty warning printing.
 ///
@@ -30,6 +27,6 @@ const WARN_TAG: TagKind = TagKind::WarningKind;
 /// ```
 pub trait WarningPrint: std::error::Error {
     fn print_warning(&self) {
-        println!("{}{}", WARN_TAG, self);
+        println!("{}{}", WARNING_TAG, self);
     }
 }
