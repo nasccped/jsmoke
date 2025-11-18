@@ -1,3 +1,7 @@
+//! # Style module
+//!
+//! Provides the program's default style.
+
 use clap::builder::{Styles, styling};
 
 pub const APP_STYLE: Styles = Styles::styled()
