@@ -2,5 +2,5 @@
 //!
 //! Visual related (CLI printing) content.
 
-mod color_highlights;
+pub mod color_highlights;
 pub mod tags;

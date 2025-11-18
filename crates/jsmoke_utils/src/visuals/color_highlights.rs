@@ -20,6 +20,11 @@ fn b_green(value: &str) -> String {
     value.bright_green().to_string()
 }
 
+/// Turns a [`str`] into bright blue (private).
+fn b_blue(value: &str) -> String {
+    value.bright_blue().to_string()
+}
+
 /// Turns a [`str`] into bright magenta (private).
 fn b_magenta(value: &str) -> String {
     value.bright_magenta().to_string()
@@ -46,6 +51,13 @@ pub trait ColorHighlights<'a> {
 
     /// Apply type highlight to an item (like [`i32`] or [`f64`]).
     fn type_highlight(&'a self) -> String;
+
+    /// Apply machine's core commands (`mkdir`, `echo`, ...) color
+    /// highlight.
+    fn command_highlight(&'a self) -> String;
+
+    /// Apply string's highlight (like `"this"` and `"that"`).
+    fn string_highlight(&'a self) -> String;
 }
 
 // impl for any type that implements `AutoTrim` (auto implements
@@ -83,6 +95,18 @@ impl<'a, T: AutoTrim<'a>> ColorHighlights<'a> for T {
                 s
             });
         if ticks { ticking::retick(items) } else { items }
+    }
+
+    fn command_highlight(&'a self) -> String {
+        let (ticks, item) = ticking::untick(self.auto_trim());
+        let item = b_blue(item);
+        if ticks { ticking::retick(item) } else { item }
+    }
+
+    fn string_highlight(&'a self) -> String {
+        let (ticks, item) = ticking::untick(self.auto_trim());
+        let item = b_cyan(item);
+        if ticks { ticking::retick(item) } else { item }
     }
 }
 
