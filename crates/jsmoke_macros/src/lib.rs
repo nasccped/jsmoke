@@ -17,3 +17,18 @@ pub fn print_error_derive(input: TokenStream) -> TokenStream {
     }
     .into()
 }
+
+/// Proc-macro for auto implementing
+/// `jsmoke_utils::printing::warning_print::WarningPrint` trait.
+///
+/// Easy task since `WarningPrint` provides default behavior
+/// function.
+#[proc_macro_derive(WarningPrint)]
+pub fn print_warning_derive(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let ident = input.ident;
+    quote! {
+        impl WarningPrint for #ident {}
+    }
+    .into()
+}
