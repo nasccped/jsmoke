@@ -18,6 +18,15 @@ const WARNING: &str = "warn";
 const NOTE: &str = "note";
 const OK: &str = "ok";
 
+/// Public [`TagKind::ErrorKind`] variant.
+pub const ERROR_TAG: TagKind = TagKind::ErrorKind;
+/// Public [`TagKind::WarningKind`] variant.
+pub const WARNING_TAG: TagKind = TagKind::WarningKind;
+/// Public [`TagKind::NoteKind`] variant.
+pub const NOTE_TAG: TagKind = TagKind::NoteKind;
+/// Public [`TagKind::OkKind`] variant.
+pub const OK_TAG: TagKind = TagKind::OkKind;
+
 /// Tag kind when reporting messages to user.
 #[derive(Debug, PartialEq)]
 pub enum TagKind {
@@ -35,34 +44,29 @@ impl TagKind {
     /// Converts the provided [`TagKind`] into a simple string (no
     /// color/colon).
     fn as_simple_str(&self) -> &'static str {
-        match self {
-            TagKind::ErrorKind => ERROR,
-            TagKind::WarningKind => WARNING,
-            TagKind::NoteKind => NOTE,
-            TagKind::OkKind => OK,
+        match *self {
+            ERROR_TAG => ERROR,
+            WARNING_TAG => WARNING,
+            NOTE_TAG => NOTE,
+            OK_TAG => OK,
         }
     }
 }
 
 /// private available kinds (used to print within
 /// [`Verbose::print_verbose`] function).
-const AVAILABLE_KINDS: [TagKind; 4] = [
-    TagKind::ErrorKind,
-    TagKind::WarningKind,
-    TagKind::NoteKind,
-    TagKind::OkKind,
-];
+const AVAILABLE_KINDS: [TagKind; 4] = [ERROR_TAG, WARNING_TAG, NOTE_TAG, OK_TAG];
 
 impl std::fmt::Display for TagKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
             "{}: ",
-            match self {
-                Self::ErrorKind => ERROR.bright_red(),
-                Self::WarningKind => WARNING.bright_yellow(),
-                Self::NoteKind => NOTE.bright_cyan(),
-                Self::OkKind => OK.bright_green(),
+            match *self {
+                ERROR_TAG => ERROR.bright_red(),
+                WARNING_TAG => WARNING.bright_yellow(),
+                NOTE_TAG => NOTE.bright_cyan(),
+                OK_TAG => OK.bright_green(),
             }
         )
     }
@@ -72,14 +76,15 @@ impl<'a> TryFrom<&'a str> for TagKind {
     type Error = UnparseableTagKind;
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
         match value.to_lowercase().trim() {
+            // Ok cases:
             ERROR => Ok(Self::ErrorKind),
             WARNING => Ok(Self::WarningKind),
             NOTE => Ok(Self::NoteKind),
             OK => Ok(Self::OkKind),
 
-            // pass any other string (even empty) to `from` method
-            // since they all are invalid
-            other => Err(UnparseableTagKind::from(other)),
+            // Err cases:
+            "" => Err(UnparseableTagKind::EmptyKind),
+            other => Err(UnparseableTagKind::InvalidKind(other.into())),
         }
     }
 }
@@ -93,16 +98,6 @@ pub enum UnparseableTagKind {
     /// The provide [`str`] is empty.
     #[error("couldn't parse the kind value (empty string)")]
     EmptyKind,
-}
-
-impl From<&str> for UnparseableTagKind {
-    fn from(value: &str) -> Self {
-        if value.is_empty() {
-            Self::EmptyKind
-        } else {
-            Self::InvalidKind(value.to_string())
-        }
-    }
 }
 
 impl Verbose for UnparseableTagKind {
@@ -125,12 +120,7 @@ impl Verbose for UnparseableTagKind {
             {}\n\
             \n\
             {}refers to {} module.",
-            tk,
-            str_slc,
-            tk,
-            available,
-            TagKind::NoteKind,
-            cur_mod
+            tk, str_slc, tk, available, NOTE_TAG, cur_mod
         )
     }
 }
@@ -143,10 +133,10 @@ mod tests {
     fn ok_parsing() {
         // use literals to avoid accidental const changes.
         [
-            ("error", TagKind::ErrorKind),
-            ("warn", TagKind::WarningKind),
-            ("note", TagKind::NoteKind),
-            ("ok", TagKind::OkKind),
+            ("error", ERROR_TAG),
+            ("warn", WARNING_TAG),
+            ("note", NOTE_TAG),
+            ("ok", OK_TAG),
         ]
         .into_iter()
         .for_each(|(s, k)| assert_eq!(TagKind::try_from(s), Ok(k)))
