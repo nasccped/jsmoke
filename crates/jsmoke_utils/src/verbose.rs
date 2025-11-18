@@ -31,7 +31,7 @@ pub trait Verbose {
     fn print_verbose(&self) {
         match self.get_verbose().as_str() {
             "" => {}
-            message => println!("{}", message),
+            message => println!("\n{}\n", message),
         }
     }
 
