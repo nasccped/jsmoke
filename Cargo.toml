@@ -23,11 +23,18 @@ exclude = [
 ]
 
 [workspace.dependencies]
-# local crates
-jsmoke_application = "0.1.0"
-jsmoke_cli = "0.1.0"
-jsmoke_utils = "0.1.0"
-jsmoke_macros = "0.3.0"
+# workspace can't contains relative path when publishing, so
+# uncomment this: ---------------------------------------------------
+# jsmoke_application = "0.1.0"
+# jsmoke_cli = "0.1.0"
+# jsmoke_utils = "0.1.0"
+# jsmoke_macros = "0.3.0"
+# and comment this: -------------------------------------------------
+jsmoke_application = { path = "./crates/jsmoke_application" }
+jsmoke_cli = { path = "./crates/jsmoke_cli" }
+jsmoke_utils = { path = "./crates/jsmoke_utils" }
+jsmoke_macros = { path = "./crates/jsmoke_macros" }
+
 # global dependencies
 clap = { version = "4.5.45", features = ["derive"] }
 colored = "3.0.0"
