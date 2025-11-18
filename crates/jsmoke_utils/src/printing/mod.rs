@@ -2,7 +2,7 @@
 //!
 //! Printing related stuff:
 //! - error pretty print
-//! - warning print
+//! - warning pretty print
 //! - ...
-
 pub mod error_print;
+pub mod warning_print;
