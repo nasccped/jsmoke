@@ -1,6 +1,7 @@
 #![doc = include_str!("../README.md")]
 
 mod app;
+pub mod common;
 pub mod prelude;
 use clap::{CommandFactory, FromArgMatches};
 
