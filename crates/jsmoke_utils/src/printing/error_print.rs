@@ -1,3 +1,6 @@
+//! # Error printing module
+//!
+//! Provides error printing reserved utilities (majorly traits).
 use crate::visuals::tags::TagKind;
 
 /// Tag used when printing an error.
