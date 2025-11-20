@@ -62,7 +62,7 @@ pub trait ColorHighlights<'a> {
 
 // impl for any type that implements `AutoTrim` (auto implements
 // this trait for `str`, `String` references).
-impl<'a, T: AutoTrim<'a>> ColorHighlights<'a> for T {
+impl<'a, T: AutoTrim<'a, Output = &'a str>> ColorHighlights<'a> for T {
     fn module_highlight(&'a self) -> String {
         let (ticks, item) = ticking::untick(self.auto_trim());
         let mod_str = item
@@ -113,7 +113,6 @@ impl<'a, T: AutoTrim<'a>> ColorHighlights<'a> for T {
 mod ticking {
     //! Ticking module. Remove and apply code ticks. Tiny and private
     //! since it's only used by the [`super`] module.
-
     use super::*;
 
     /// "Untick" the provided [`str`] slice and return a tuple containing
