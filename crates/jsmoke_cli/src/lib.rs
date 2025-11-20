@@ -3,6 +3,7 @@
 mod app;
 pub mod common;
 pub mod prelude;
+mod types;
 use clap::{CommandFactory, FromArgMatches};
 
 const EXPECTED_MESSAGE: &str =
