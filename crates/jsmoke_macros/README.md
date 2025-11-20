@@ -7,7 +7,7 @@ This module provides JSmoke macros. It's intended to auto-implement
 default behavior traits (traits that contains default functions).
 
 It turns the coding a lot simpler:
-```rust
+```rust,compile_fail
 trait SomeTrait {
     // code here ...
 }
