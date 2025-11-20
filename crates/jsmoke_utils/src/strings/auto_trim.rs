@@ -6,9 +6,12 @@
 //! approach enforces modularization and standardization over the
 //! entire workspace.
 
-/// Automatically trims the given value (works like [`Into`] standard
-/// trait but converting default strings into trimmed).
-pub trait AutoTrim<'a>: private_mod::Sealed {
+/// Automatically trims the given value (works like [`str::trim`]'s
+/// function).
+pub trait AutoTrim<'a> {
+    /// Output type to be returned.
+    type Output: ToOwned + ?Sized;
+
     /// Function that actually trims the `&self` content.
     ///
     /// This function takes a reference to the `self` object (in
@@ -17,43 +20,26 @@ pub trait AutoTrim<'a>: private_mod::Sealed {
     /// `shadowing`:
     /// ```compile_fail
     /// fn some_func<T: AutoTrim>(input: T) {
-    ///     input = input.auto_trim().to_string();
+    ///     let input = input.auto_trim().to_string();
     ///     // do stuff...
     /// }
     /// some_func(format!("  Passing a {}  ", "string"));
     /// ```
-    fn auto_trim(&'a self) -> &'a str;
+    fn auto_trim(&'a self) -> Self::Output;
 }
 
 impl<'a> AutoTrim<'a> for &'a str {
-    fn auto_trim(&'a self) -> &'a str {
+    type Output = Self;
+    fn auto_trim(&'a self) -> Self::Output {
         self.trim()
     }
 }
 
 impl<'a> AutoTrim<'a> for String {
-    fn auto_trim(&'a self) -> &'a str {
+    type Output = &'a str;
+    fn auto_trim(&'a self) -> Self::Output {
         self.trim()
     }
-}
-
-mod private_mod {
-    //! # [`crate::strings::auto_trim`]'s private module
-    //!
-    //! This module is intended to be private and declare basic rules
-    //! to [`super::AutoTrim`] trait implementing.
-    //!
-    //! The [`super::AutoTrim`] trait can be implemented only if the
-    //! given type also implements [`Sealed`] trait (which is private).
-    //!
-    //! By default, only &[`str`] and [`String`] types implements
-    //! [`Sealed`]. So, just these types can also implement
-    //! [`super::AutoTrim`].
-
-    /// Private trait...
-    pub trait Sealed {}
-    impl Sealed for &str {}
-    impl Sealed for String {}
 }
 
 #[cfg(test)]
