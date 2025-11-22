@@ -77,7 +77,7 @@ impl ComputerCommand {
     /// values by receiving it from the [`Command`] itself (a
     /// [`Vec<u8>`] type) and turning it into a [`String`] by using
     /// the [`String::from_utf8`] function.
-    /// 
+    ///
     /// This function will return a [`Result<String, FromUtf8Error>`]
     /// type value, and an `utf8` str is expect, otherwise, the
     /// program will panic with the [`Result::expect`] action.
@@ -102,5 +102,12 @@ impl ComputerCommand {
             }
             Err(_) => Err(ComputerCommandError::DontExists(name)),
         }
+    }
+
+    /// Push a new argument to the [`Self::args`] field and returns a
+    /// mutable reference to itself (like builder pattern).
+    pub fn push_arg(&mut self, arg: impl ToString) -> &mut Self {
+        self.args.push(arg.to_string());
+        self
     }
 }
