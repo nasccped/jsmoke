@@ -10,9 +10,9 @@ use thiserror::Error;
 /// [`std::process::Command`]) but provides testing abstraction.
 pub struct ComputerCommand {
     /// Command name.
-    name: String,
+    pub name: String,
     /// Args to be ran.
-    args: Vec<String>,
+    pub args: Vec<String>,
 }
 
 /// Possible errors when running [`ComputerCommand`].
