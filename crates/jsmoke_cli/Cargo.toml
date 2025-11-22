@@ -13,3 +13,6 @@ exclude.workspace = true
 
 [dependencies]
 clap.workspace = true
+jsmoke_utils.workspace = true
+jsmoke_macros.workspace = true
+thiserror.workspace = true
