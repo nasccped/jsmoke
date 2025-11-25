@@ -5,9 +5,9 @@
 
 use super::color_highlights::ColorHighlights;
 use crate::{
+    print_verbose::PrintVerbose,
     printing::error_print::ErrorPrint,
     strings::repr::{STRING_SLICE, TAG_KIND, TAGS_MODULE},
-    verbose::Verbose,
 };
 use colored::Colorize;
 use jsmoke_macros::ErrorPrint;
@@ -100,8 +100,8 @@ pub enum UnparseableTagKind {
     EmptyKind,
 }
 
-impl Verbose for UnparseableTagKind {
-    fn get_verbose(&self) -> String {
+impl PrintVerbose for UnparseableTagKind {
+    fn print_verbose(&self) {
         let tk = TAG_KIND.type_highlight();
         let str_slc = STRING_SLICE.type_highlight();
         let available = AVAILABLE_KINDS
@@ -110,18 +110,13 @@ impl Verbose for UnparseableTagKind {
             .collect::<Vec<_>>()
             .join("\n");
         let cur_mod = TAGS_MODULE.module_highlight();
-
-        format!(
-            "\
-            This occurs when trying to generate a {} from an\n\
-            invalid {} value.\n\
-            \n\
-            Currently available {} values:\n\
-            {}\n\
-            \n\
-            {}refers to {} module.",
-            tk, str_slc, tk, available, NOTE_TAG, cur_mod
-        )
+        println!();
+        println!("This occurs when trying to generate a {} from an", tk);
+        println!("invalid {} value.", str_slc);
+        println!();
+        println!("Currently available {} values:", tk);
+        println!("{}", available);
+        println!("{}refers to {} module.", NOTE_TAG, cur_mod);
     }
 }
 
