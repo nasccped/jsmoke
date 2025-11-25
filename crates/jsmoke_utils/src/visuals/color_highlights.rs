@@ -61,6 +61,9 @@ pub trait ColorHighlights<'a> {
 
     /// Apply CLI parameter highlight (like `<EXAMPLE>`).
     fn parameter_highlight(&'a self) -> String;
+
+    /// Apply CLI flag highlight (like `--example`).
+    fn flag_highlight(&'a self) -> String;
 }
 
 // impl for any type that implements `AutoTrim` (auto implements
@@ -113,6 +116,12 @@ impl<'a, T: AutoTrim<'a, Output = &'a str>> ColorHighlights<'a> for T {
     }
 
     fn parameter_highlight(&'a self) -> String {
+        let (ticks, item) = ticking::untick(self.auto_trim());
+        let item = b_cyan(item);
+        if ticks { ticking::retick(item) } else { item }
+    }
+
+    fn flag_highlight(&'a self) -> String {
         let (ticks, item) = ticking::untick(self.auto_trim());
         let item = b_cyan(item);
         if ticks { ticking::retick(item) } else { item }
