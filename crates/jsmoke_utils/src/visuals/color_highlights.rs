@@ -73,6 +73,10 @@ pub trait ColorHighlights {
 
     /// Apply CLI flag highlight (like `--example`).
     fn flag_highlight(&self) -> String;
+
+    /// Apply highlights to list's bullet points (like `*`, `-` or
+    /// `1.`).
+    fn bullet_point_highlight(&self) -> String;
 }
 
 // impl for any type that implements `AutoTrim` (auto implements
@@ -128,6 +132,10 @@ impl<T: AsRef<str>> ColorHighlights for T {
 
     fn flag_highlight(&self) -> String {
         common_highlight(self.as_ref(), b_cyan)
+    }
+
+    fn bullet_point_highlight(&self) -> String {
+        common_highlight(self.as_ref(), b_blue)
     }
 }
 
