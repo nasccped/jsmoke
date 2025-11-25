@@ -5,7 +5,5 @@
 //!
 //! Each submodule contains it's own trait/types/funcs. Consider
 //! reading each documentation.
-
-pub mod auto_trim;
 pub mod chunk_by_any;
 pub mod repr;
