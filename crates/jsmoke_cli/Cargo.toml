@@ -16,3 +16,4 @@ clap.workspace = true
 jsmoke_utils.workspace = true
 jsmoke_macros.workspace = true
 thiserror.workspace = true
+regex.workspace = true
