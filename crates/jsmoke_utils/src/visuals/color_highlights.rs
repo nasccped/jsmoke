@@ -2,8 +2,9 @@
 //!
 //! Provide fast-hand colored printing using [`colored`] crate and
 //! private functions to avoid code repetition.
+#![allow(dead_code)]
 
-use crate::strings::{auto_trim::AutoTrim, chunk_by_any::ChunkByAny};
+use crate::strings::chunk_by_any::ChunkByAny;
 use colored::Colorize;
 
 /// Tick char literal (avoid magic values).
@@ -40,37 +41,46 @@ fn b_white(value: &str) -> String {
     value.bright_white().to_string()
 }
 
+/// Apply all the trim + (un/re)tick + coloring stuff by receiving a
+/// [`str`] reference + coloring it with a highlight function.
+fn common_highlight(input: &str, highlight: fn(&str) -> String) -> String {
+    let (ticks, item) = ticking::untick(input.trim());
+    let item = highlight(item);
+    if ticks { ticking::retick(item) } else { item }
+}
+
 /// Apply color highlights based on the item kind.
 ///
 /// This trait allows to avoid different coloring through similar
 /// kind of items (+ easy extension and fixing).
-pub trait ColorHighlights<'a> {
+pub trait ColorHighlights {
     /// Apply module highlight to an item (like [`std`],
     /// [`crate::types`] and so on).
-    fn module_highlight(&'a self) -> String;
+    fn module_highlight(&self) -> String;
 
     /// Apply type highlight to an item (like [`i32`] or [`f64`]).
-    fn type_highlight(&'a self) -> String;
+    fn type_highlight(&self) -> String;
 
     /// Apply machine's core commands (`mkdir`, `echo`, ...) color
     /// highlight.
-    fn command_highlight(&'a self) -> String;
+    fn command_highlight(&self) -> String;
 
     /// Apply string's highlight (like `"this"` and `"that"`).
-    fn string_highlight(&'a self) -> String;
+    fn string_highlight(&self) -> String;
 
     /// Apply CLI parameter highlight (like `<EXAMPLE>`).
-    fn parameter_highlight(&'a self) -> String;
+    fn parameter_highlight(&self) -> String;
 
     /// Apply CLI flag highlight (like `--example`).
-    fn flag_highlight(&'a self) -> String;
+    fn flag_highlight(&self) -> String;
 }
 
 // impl for any type that implements `AutoTrim` (auto implements
 // this trait for `str`, `String` references).
-impl<'a, T: AutoTrim<'a, Output = &'a str>> ColorHighlights<'a> for T {
-    fn module_highlight(&'a self) -> String {
-        let (ticks, item) = ticking::untick(self.auto_trim());
+impl<T: AsRef<str>> ColorHighlights for T {
+    fn module_highlight(&self) -> String {
+        let input = self.as_ref();
+        let (ticks, item) = ticking::untick(input.trim());
         let mod_str = item
             .split(MODULE_SEPARATOR)
             .map(b_magenta)
@@ -83,13 +93,14 @@ impl<'a, T: AutoTrim<'a, Output = &'a str>> ColorHighlights<'a> for T {
         }
     }
 
-    fn type_highlight(&'a self) -> String {
-        let (ticks, item) = ticking::untick(self.auto_trim());
+    fn type_highlight(&self) -> String {
+        let input = self.as_ref();
+        let (ticks, item) = ticking::untick(input.trim());
         let items = item
             .chunk_by_any(TYPE_ELEMENTS)
             .iter()
             .fold(String::new(), |mut s, item| {
-                match item.auto_trim() {
+                match item.trim() {
                     // `any` and `lifetime` items are special.
                     "_" => s.push_str(b_magenta("_").as_str()),
                     "'a" => s.push_str((b_white("'") + b_cyan("a").as_str()).as_str()),
@@ -103,28 +114,20 @@ impl<'a, T: AutoTrim<'a, Output = &'a str>> ColorHighlights<'a> for T {
         if ticks { ticking::retick(items) } else { items }
     }
 
-    fn command_highlight(&'a self) -> String {
-        let (ticks, item) = ticking::untick(self.auto_trim());
-        let item = b_blue(item);
-        if ticks { ticking::retick(item) } else { item }
+    fn command_highlight(&self) -> String {
+        common_highlight(self.as_ref(), b_green)
     }
 
-    fn string_highlight(&'a self) -> String {
-        let (ticks, item) = ticking::untick(self.auto_trim());
-        let item = b_cyan(item);
-        if ticks { ticking::retick(item) } else { item }
+    fn string_highlight(&self) -> String {
+        common_highlight(self.as_ref(), b_cyan)
     }
 
-    fn parameter_highlight(&'a self) -> String {
-        let (ticks, item) = ticking::untick(self.auto_trim());
-        let item = b_cyan(item);
-        if ticks { ticking::retick(item) } else { item }
+    fn parameter_highlight(&self) -> String {
+        common_highlight(self.as_ref(), b_cyan)
     }
 
-    fn flag_highlight(&'a self) -> String {
-        let (ticks, item) = ticking::untick(self.auto_trim());
-        let item = b_cyan(item);
-        if ticks { ticking::retick(item) } else { item }
+    fn flag_highlight(&self) -> String {
+        common_highlight(self.as_ref(), b_cyan)
     }
 }
 
