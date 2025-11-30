@@ -15,3 +15,4 @@ exclude.workspace = true
 colored.workspace = true
 thiserror.workspace = true
 jsmoke_macros.workspace = true
+regex.workspace = true
