@@ -1,10 +1,10 @@
 [package]
 name = "jsmoke_application"
-version = "1.0.1"
+version = "1.0.2"
 description = "JSmoke application use cases"
 edition = "2024"
 authors = ["nasccped <pdbt.contact@gmail.com>"]
-repository = "https://github.com/nasccped/jsmoke/tree/jsmoke_application-lib"
+repository = "https://github.com/nasccped/jsmoke/tree/main/deprecated/libs/jsmoke_application"
 readme = "README.md"
 license = "MIT"
 exclude = ["target/", ".git/", ".gitignore"]

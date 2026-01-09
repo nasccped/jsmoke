@@ -1,12 +1,12 @@
 [package]
 name = "jsmoke_macros"
-version = "0.3.2"
+version = "0.3.3"
 description = "JSmoke personal macros"
 readme = "README.md"
 edition = "2024"
 license = "MIT"
 authors = ["nasccped <pdbt.contact@gmail.com>"]
-repository = "https://github.com/nasccped/jsmoke/tree/jsmoke_macros-lib"
+repository = "https://github.com/nasccped/jsmoke/tree/main/deprecated/libs/jsmoke_macros"
 exclude = ["target/", ".git/", ".gitignore"]
 
 [dependencies]
