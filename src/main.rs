@@ -1,8 +1,8 @@
+mod cli;
 mod exit;
 
-use std::process::ExitCode;
+use clap::Parser;
 
 fn main() {
-    println!("jsmoke is about to run :^D");
-    exit::with_code(ExitCode::SUCCESS);
+    let mut _app = cli::App::parse();
 }
