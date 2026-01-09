@@ -1,0 +1,12 @@
+[package]
+name = "jsmoke_cli"
+version = "0.1.1"
+description = "JSmoke CLI parser and application implementer"
+edition = "2024"
+authors = ["nasccped <pdbt.contact@gmail.com>"]
+repository = "https://github.com/nasccped/jsmoke/tree/jsmoke_cli-lib"
+readme = "README.md"
+license = "MIT"
+exclude = ["target/", ".git/", ".gitignore"]
+
+[dependencies]
