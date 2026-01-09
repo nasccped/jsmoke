@@ -1,6 +1,6 @@
 [package]
 name = "jsmoke"
-version = "0.1.1"
+version = "0.1.2"
 description = "A simple project manager targeting java applications"
 edition = "2024"
 authors = ["nasccped <pdbt.contact@gmail.com>"]
