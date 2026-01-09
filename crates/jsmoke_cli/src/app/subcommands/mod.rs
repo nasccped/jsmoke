@@ -2,14 +2,14 @@
 //!
 //! This module provides access to the JSmoke CLI subcommands and
 //! its fields.
-
+mod new;
 use clap::Subcommand;
 
 /// JSmoke subcommands groups.
 #[derive(Subcommand)]
 pub enum JsmkSubcommand {
     /// Create a new project within a new directory.
-    New,
+    New(new::NewSubcommand),
     /// Create a new project within the current directory.
     Init,
     /// Compile the current project's source code.
