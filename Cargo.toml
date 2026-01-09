@@ -9,7 +9,7 @@ readme = "README.md"
 license = "MIT"
 keywords = ["java", "project-manager", "cli"]
 categories = ["command-line-utilities"]
-exclude = ["target/", ".git/", ".gitignore"]
+exclude = ["target/", ".git/", ".gitignore", "deprecated/"]
 
 [[bin]]
 name = "jsmk"
