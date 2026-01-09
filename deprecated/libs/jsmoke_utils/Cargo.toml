@@ -1,0 +1,12 @@
+[package]
+name = "jsmoke_utils"
+version = "0.1.1"
+description = "JSmoke program utilities"
+edition = "2024"
+authors = ["nasccped <pdbt.contact@gmail.com>"]
+repository = "https://github.com/nasccped/jsmoke/tree/jsmoke_utils-lib"
+readme = "README.md"
+license = "MIT"
+exclude = ["target/", ".git/", ".gitignore"]
+
+[dependencies]
