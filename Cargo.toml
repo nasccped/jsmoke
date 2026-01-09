@@ -1,44 +1,12 @@
-[workspace]
-resolver = "3"
-members = [
-  "crates/*"
-]
-exclude = [
-  "target/"
-]
-
-[workspace.package]
-version = "0.1.0"
+[package]
+name = "jsmoke_cli"
+version = "0.1.1"
+description = "JSmoke CLI parser and application implementer"
 edition = "2024"
-license = "MIT"
 authors = ["nasccped <pdbt.contact@gmail.com>"]
-description = "Simple project manager for simple java apps"
-repository = "https://github.com/nasccped/jsmoke"
-keywords = ["java", "project-manager", "cli"]
-categories = ["command-line-utilities"]
-exclude = [
-  "target/",
-  ".git/",
-  ".gitignore"
-]
+repository = "https://github.com/nasccped/jsmoke/tree/jsmoke_cli-lib"
+readme = "README.md"
+license = "MIT"
+exclude = ["target/", ".git/", ".gitignore"]
 
-[workspace.dependencies]
-# workspace can't contains relative path when publishing, so
-# uncomment this: ---------------------------------------------------
-# jsmoke_application = "0.1.0"
-# jsmoke_cli = "0.1.0"
-# jsmoke_utils = "0.1.0"
-# jsmoke_macros = "0.3.0"
-# and comment this: -------------------------------------------------
-jsmoke_application = { path = "./crates/jsmoke_application" }
-jsmoke_cli = { path = "./crates/jsmoke_cli" }
-jsmoke_utils = { path = "./crates/jsmoke_utils" }
-jsmoke_macros = { path = "./crates/jsmoke_macros" }
-
-# global dependencies
-clap = { version = "4.5.45", features = ["derive"] }
-colored = "3.0.0"
-thiserror = "2.0.17"
-syn = "2.0"
-quote = "1.0"
-regex = "1.12.2"
+[dependencies]
