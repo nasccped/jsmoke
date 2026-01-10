@@ -8,6 +8,9 @@ use clap::Args;
 pub struct New {
     /// The name of the created project (CamelCase expected).
     name: Option<String>,
+    /// Where to place the new project (same as `name` by default).
+    #[arg(long, short = 'p')]
+    path: Option<String>,
     /// Lock the project to the version regex.
     #[arg(long = "lock", short = 'l', value_name = "(>|=|>=|<|<=)VERSION")]
     lock_version: Option<String>,
@@ -18,6 +21,6 @@ pub struct New {
     #[arg(long, short = 'g')]
     group: Option<String>,
     /// The package name of the created project (group+artifact by default).
-    #[arg(long, short = 'p')]
+    #[arg(long)]
     package: Option<String>,
 }
