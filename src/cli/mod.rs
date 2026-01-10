@@ -14,6 +14,9 @@ pub struct App {
     /// Force the called action.
     #[arg(long)]
     force: bool,
+    /// Turn on the verbosed mode.
+    #[arg(long)]
+    verbose: bool,
 }
 
 #[cfg(test)]
@@ -22,6 +25,7 @@ mod test {
 
     const EMPTY: [&str; 1] = ["jsmk"];
     const FORCE: [&str; 2] = ["jsmk", "--force"];
+    const VERBOSE: [&str; 2] = ["jsmk", "--verbose"];
 
     #[test]
     fn no_subcommand_and_no_force() {
@@ -31,8 +35,12 @@ mod test {
 
     #[test]
     fn force_trigger() {
-        dbg!(App::parse_from(FORCE));
         assert!(App::parse_from(FORCE).force);
+    }
+
+    #[test]
+    fn verbose_trigger() {
+        assert!(App::parse_from(VERBOSE).verbose);
     }
 
     #[test]
