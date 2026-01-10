@@ -1,12 +1,23 @@
 //! # CLI
 //!
 //! Provides the cli main features (constructor and components).
-use clap::Parser;
 pub mod subcommands;
+
+use clap::{
+    Parser,
+    builder::{Styles, styling::AnsiColor},
+};
+
+const STYLE: Styles = Styles::styled()
+    .header(AnsiColor::BrightGreen.on_default())
+    .usage(AnsiColor::BrightGreen.on_default())
+    .error(AnsiColor::BrightRed.on_default())
+    .literal(AnsiColor::Cyan.on_default())
+    .placeholder(AnsiColor::Yellow.on_default());
 
 /// The jsmoke cli app struct. Holds the subcommand variants + top level flags.
 #[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
+#[command(version, about, long_about = None, styles = STYLE)]
 pub struct App {
     /// The subcommand to be executed.
     #[command(subcommand)]
