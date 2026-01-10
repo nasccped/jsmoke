@@ -24,3 +24,81 @@ pub struct New {
     #[arg(long)]
     package: Option<String>,
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use clap::Parser;
+
+    const NAME: &str = "somename";
+    const PATH: &str = "mypath";
+    const LOCK: &str = ">19.3.4";
+    const ARTIFACT: &str = "someproject";
+    const GROUP: &str = "my.group";
+    const PACKAGE: &str = "crust.package.project";
+
+    #[derive(Parser, Debug)]
+    struct NewTest {
+        #[command(flatten)]
+        new: New,
+    }
+
+    impl NewTest {
+        /// Generates a [`New`] struct over items that can be iterate. Don't require an initial
+        /// argument (i.e. empty string).
+        fn parse_from_iter<'a, I: IntoIterator<Item = &'a str>>(iter: I) -> New {
+            let mut v = vec![""];
+            v.extend(iter);
+            match Self::try_parse_from(v) {
+                Ok(x) => x.new,
+                Err(x) => panic!("error when parsing, received => {:?}", x),
+            }
+        }
+    }
+
+    #[test]
+    fn longs() {
+        let new = NewTest::parse_from_iter([
+            NAME,
+            "--path",
+            PATH,
+            "--lock",
+            LOCK,
+            "--artifact",
+            ARTIFACT,
+            "--group",
+            GROUP,
+            "--package",
+            PACKAGE,
+        ]);
+        assert!(new.name.is_some_and(|n| n == NAME));
+        assert!(new.path.is_some_and(|n| n == PATH));
+        assert!(new.lock_version.is_some_and(|n| n == LOCK));
+        assert!(new.artifact.is_some_and(|n| n == ARTIFACT));
+        assert!(new.group.is_some_and(|n| n == GROUP));
+        assert!(new.package.is_some_and(|n| n == PACKAGE));
+    }
+
+    #[test]
+    fn short() {
+        let new =
+            NewTest::parse_from_iter([NAME, "-p", PATH, "-l", LOCK, "-a", ARTIFACT, "-g", GROUP]);
+        assert!(new.name.is_some_and(|n| n == NAME));
+        assert!(new.path.is_some_and(|n| n == PATH));
+        assert!(new.lock_version.is_some_and(|n| n == LOCK));
+        assert!(new.artifact.is_some_and(|n| n == ARTIFACT));
+        assert!(new.group.is_some_and(|n| n == GROUP));
+        assert!(new.package.is_none());
+    }
+
+    #[test]
+    fn empty() {
+        let new = NewTest::parse_from_iter([]);
+        assert!(new.name.is_none());
+        assert!(new.path.is_none());
+        assert!(new.lock_version.is_none());
+        assert!(new.artifact.is_none());
+        assert!(new.group.is_none());
+        assert!(new.package.is_none());
+    }
+}
