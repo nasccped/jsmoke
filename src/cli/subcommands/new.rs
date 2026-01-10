@@ -24,3 +24,93 @@ pub struct New {
     #[arg(long)]
     package: Option<String>,
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use clap::Parser;
+
+    const NAME: &str = "somename";
+    const PATH: &str = "mypath";
+    const LOCK: &str = ">19.3.4";
+    const ARTIFACT: &str = "someproject";
+    const GROUP: &str = "my.group";
+    const PACKAGE: &str = "crust.package.project";
+
+    #[derive(Parser, Debug)]
+    struct NewTest {
+        #[command(flatten)]
+        new: New,
+    }
+
+    impl NewTest {
+        fn force_parsing<'a, I: IntoIterator<Item = &'a str>>(iter: I) -> Self {
+            match Self::try_parse_from(iter) {
+                Ok(x) => x,
+                Err(x) => panic!("error when parsing, received => {:?}", x),
+            }
+        }
+
+        fn long_sample() -> New {
+            Self::force_parsing([
+                "",
+                NAME,
+                "--path",
+                PATH,
+                "--lock",
+                LOCK,
+                "--artifact",
+                ARTIFACT,
+                "--group",
+                GROUP,
+                "--package",
+                PACKAGE,
+            ])
+            .new
+        }
+
+        fn short_sample() -> New {
+            Self::force_parsing([
+                "", NAME, "-p", PATH, "-l", LOCK, "-a", ARTIFACT, "-g", GROUP,
+            ])
+            .new
+        }
+
+        fn empty_sample() -> New {
+            Self::force_parsing([""]).new
+        }
+    }
+
+    #[test]
+    fn longs() {
+        let new = NewTest::long_sample();
+        assert!(new.name.is_some_and(|n| n == NAME));
+        assert!(new.path.is_some_and(|n| n == PATH));
+        assert!(new.lock_version.is_some_and(|n| n == LOCK));
+        assert!(new.artifact.is_some_and(|n| n == ARTIFACT));
+        assert!(new.group.is_some_and(|n| n == GROUP));
+        assert!(new.package.is_some_and(|n| n == PACKAGE));
+    }
+
+    #[test]
+    fn short() {
+        let new = NewTest::short_sample();
+        assert!(new.name.is_some_and(|n| n == NAME));
+        assert!(new.path.is_some_and(|n| n == PATH));
+        assert!(new.lock_version.is_some_and(|n| n == LOCK));
+        assert!(new.artifact.is_some_and(|n| n == ARTIFACT));
+        assert!(new.group.is_some_and(|n| n == GROUP));
+        assert!(new.package.is_none());
+    }
+
+    #[test]
+    fn empty() {
+        let new = NewTest::empty_sample();
+        assert!(new.name.is_none());
+        assert!(new.path.is_none());
+        assert!(new.lock_version.is_none());
+        assert!(new.artifact.is_none());
+        assert!(new.group.is_none());
+        assert!(new.package.is_none());
+    }
+}
