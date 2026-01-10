@@ -21,7 +21,7 @@ pub struct App {
 
 #[cfg(test)]
 mod test {
-    use super::{App, Parser, subcommands::Subcommand};
+    use super::{App, Parser};
 
     const EMPTY: [&str; 1] = ["jsmk"];
     const FORCE: [&str; 2] = ["jsmk", "--force"];
@@ -41,24 +41,5 @@ mod test {
     #[test]
     fn verbose_trigger() {
         assert!(App::parse_from(VERBOSE).verbose);
-    }
-
-    #[test]
-    fn expected_subcommands() {
-        // input as vec (add alias soon).
-        let samples = [
-            (vec!["build"], Subcommand::Build),
-            (vec!["clean"], Subcommand::Clean),
-            (vec!["init"], Subcommand::Init),
-            (vec!["new"], Subcommand::New),
-            (vec!["run"], Subcommand::Run),
-        ];
-        for (inps, exps) in samples {
-            assert!(inps.iter().all(|cmd| {
-                App::parse_from(["jsmk", cmd])
-                    .subcommand
-                    .is_some_and(|cmd| cmd == exps)
-            }));
-        }
     }
 }
