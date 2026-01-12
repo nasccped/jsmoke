@@ -16,7 +16,7 @@ pub enum Subcommand {
     /// Initialize a new project in the current directory.
     Init,
     /// Creates a new project within a new directory.
-    New(New),
+    New(Box<New>),
     /// Runs the current jsmoke project.
     Run,
 }
