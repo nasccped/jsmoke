@@ -20,6 +20,9 @@ pub struct New {
     /// The description of the project.
     #[arg(long, value_name = "QUOTED")]
     description: Option<String>,
+    /// The prefered version control system to be used (git as default).
+    #[arg(long)]
+    vcs: Option<String>,
     /// The artifact name of the created project (empty by default).
     #[arg(long, short = 'a')]
     artifact: Option<String>,
@@ -40,6 +43,7 @@ mod test {
     const PATH: &str = "mypath";
     const AUTHORS: &str = "nasccped <my@mail.com>, pednascc <rev@erse>";
     const DESCRIPTION: &str = "a cool testing case";
+    const VCS: &str = "git";
     const LOCK: &str = ">19.3.4";
     const ARTIFACT: &str = "someproject";
     const GROUP: &str = "my.group";
@@ -76,6 +80,8 @@ mod test {
             ARTIFACT,
             "--authors",
             AUTHORS,
+            "--vcs",
+            VCS,
             "--description",
             DESCRIPTION,
             "--group",
