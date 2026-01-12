@@ -21,13 +21,13 @@ const STYLE: Styles = Styles::styled()
 pub struct App {
     /// The subcommand to be executed.
     #[command(subcommand)]
-    subcommand: Option<subcommands::Subcommand>,
+    pub subcommand: Option<subcommands::Subcommand>,
     /// Force the called action.
     #[arg(long)]
-    force: bool,
+    pub force: bool,
     /// Turn on the verbosed mode.
     #[arg(long)]
-    verbose: bool,
+    pub verbose: bool,
 }
 
 #[cfg(test)]
