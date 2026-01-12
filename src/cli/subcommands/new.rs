@@ -14,6 +14,12 @@ pub struct New {
     /// Lock the project to the version regex.
     #[arg(long = "lock", short = 'l', value_name = "(>|=|>=|<|<=)VERSION")]
     lock_version: Option<String>,
+    /// The author(s) of the project.
+    #[arg(long, value_name = "NAME1<EMAIL1>,N2...")]
+    authors: Option<String>,
+    /// The description of the project.
+    #[arg(long, value_name = "QUOTED")]
+    description: Option<String>,
     /// The artifact name of the created project (empty by default).
     #[arg(long, short = 'a')]
     artifact: Option<String>,
@@ -32,6 +38,8 @@ mod test {
 
     const NAME: &str = "somename";
     const PATH: &str = "mypath";
+    const AUTHORS: &str = "nasccped <my@mail.com>, pednascc <rev@erse>";
+    const DESCRIPTION: &str = "a cool testing case";
     const LOCK: &str = ">19.3.4";
     const ARTIFACT: &str = "someproject";
     const GROUP: &str = "my.group";
@@ -66,6 +74,10 @@ mod test {
             LOCK,
             "--artifact",
             ARTIFACT,
+            "--authors",
+            AUTHORS,
+            "--description",
+            DESCRIPTION,
             "--group",
             GROUP,
             "--package",
