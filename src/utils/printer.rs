@@ -50,7 +50,7 @@ impl Printer {
     pub fn empty_line(&self) {
         match self.target {
             FileTarget::Stdout => println!(),
-            FileTarget::Stderr => println!(),
+            FileTarget::Stderr => eprintln!(),
             FileTarget::Other => unreachable!("TODO: implement other variant printing"),
         }
     }
