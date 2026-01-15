@@ -20,7 +20,7 @@ pub struct List<T1: Colorize + Display, T2: Display> {
     /// The optional bullet.
     bullet: Option<Bullet<T2>>,
     /// The color being used to colorize the bullet.
-    bullet_color: fn(String) -> ColoredString,
+    bullet_color: fn(&'_ str) -> ColoredString,
 }
 
 impl<T1: Colorize + Display, T2: Display> IntoIterator for List<T1, T2> {
@@ -40,13 +40,19 @@ impl<T1: Colorize + Display, T2: Display> IntoIterator for List<T1, T2> {
                     Bullet::Symbol(s) => format!("{}", s),
                 });
                 Item {
-                    bullet: inner_bullet.map(|b| (self.bullet_color)(b)),
+                    bullet: inner_bullet.map(|b| (self.bullet_color)(b.as_str())),
                     item: (self.item_color)(item),
                 }
             })
             .collect::<Vec<Item>>()
             .into_iter()
     }
+}
+
+/// Workaround for [`str`] slice convertion to [`ColoredString`] since [`String`] doesn't
+/// implements [`Colorize`].
+fn colored_string_from_str(s: &str) -> ColoredString {
+    String::from(s).into()
 }
 
 impl<T1, T2> List<T1, T2>
@@ -62,7 +68,7 @@ where
             list: Vec::new(),
             item_color: ColoredString::from,
             bullet: None,
-            bullet_color: ColoredString::from,
+            bullet_color: colored_string_from_str,
         }
     }
 
@@ -122,14 +128,14 @@ where
     }
 
     /// Sets a new bullet coloring function. Use [`Self::without_bullet_color`] to undo.
-    pub fn with_bullet_color(&mut self, color: fn(String) -> ColoredString) -> &mut Self {
+    pub fn with_bullet_color(&mut self, color: fn(&'_ str) -> ColoredString) -> &mut Self {
         self.bullet_color = color;
         self
     }
 
     /// Clears the coloring function for bullet symbol.
     pub fn without_bullet_color(&mut self) -> &mut Self {
-        self.bullet_color = ColoredString::from;
+        self.bullet_color = colored_string_from_str;
         self
     }
 }
