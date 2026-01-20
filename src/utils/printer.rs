@@ -1,3 +1,5 @@
+use std::error::Error;
+
 /// Where to print the content.
 #[derive(Default)]
 enum FileTarget {
@@ -10,6 +12,9 @@ enum FileTarget {
     #[allow(dead_code)]
     Other,
 }
+
+/// Tag that indicates an error title.
+const ERR_TAG: &str = "\x1b[91merror\x1b[97m:\x1b[0m";
 
 /// A general printing machine (stdout, stderr and other variants).
 ///
@@ -53,6 +58,14 @@ impl Printer {
             FileTarget::Stderr => eprintln!(),
             FileTarget::Other => unreachable!("TODO: implement other variant printing"),
         }
+    }
+
+    /// Prints the error description with an error kind tag at beginning.
+    pub fn print_err_tag<T: Error>(&mut self, err: T) {
+        self.use_stderr();
+        self.print(ERR_TAG);
+        self.print(' ');
+        self.println(err);
     }
 }
 
