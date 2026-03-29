@@ -2,8 +2,11 @@
 //!
 //! A module that provides useful data structures along the runtime.
 pub mod metadata;
-pub mod optionally_from;
+mod optionally_from;
 pub mod printer;
-pub mod surely_unwrap;
+mod surely_unwrap;
 pub mod verbose;
 pub mod visuals;
+
+pub use optionally_from::OptionallyFrom;
+pub use surely_unwrap::SurelyUnwrap;
