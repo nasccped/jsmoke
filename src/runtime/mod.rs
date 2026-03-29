@@ -1,3 +1,5 @@
+mod common;
+
 use crate::cli::App;
 use std::process::ExitCode;
 

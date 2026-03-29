@@ -1,7 +1,6 @@
 //! # jsmoke utilities module
 //!
 //! A module that provides useful data structures along the runtime.
-pub mod metadata;
 mod optionally_from;
 pub mod printer;
 mod surely_unwrap;
