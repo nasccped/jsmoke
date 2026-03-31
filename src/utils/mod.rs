@@ -4,8 +4,9 @@
 mod optionally_from;
 pub mod printing;
 mod surely_unwrap;
-pub mod verbose;
+mod verbose;
 pub mod visuals;
 
 pub use optionally_from::OptionallyFrom;
 pub use surely_unwrap::SurelyUnwrap;
+pub use verbose::Verbose;
