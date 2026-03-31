@@ -7,31 +7,31 @@ use clap::Args;
 #[derive(Args, Debug)]
 pub struct New {
     /// The name of the created project (CamelCase expected).
-    name: Option<String>,
+    pub name: Option<String>,
     /// Where to place the new project (same as `name` by default).
     #[arg(long, short = 'p')]
-    path: Option<String>,
+    pub path: Option<String>,
     /// Lock the project to the version regex.
     #[arg(long = "lock", short = 'l', value_name = "(>|=|>=|<|<=)VERSION")]
-    lock_version: Option<String>,
+    pub lock_version: Option<String>,
     /// The author(s) of the project.
     #[arg(long, value_name = "NAME1<EMAIL1>,N2...")]
-    authors: Option<String>,
+    pub authors: Option<String>,
     /// The description of the project.
     #[arg(long, value_name = "QUOTED")]
-    description: Option<String>,
+    pub description: Option<String>,
     /// The prefered version control system to be used (git as default).
     #[arg(long)]
-    vcs: Option<String>,
+    pub vcs: Option<String>,
     /// The artifact name of the created project (empty by default).
     #[arg(long, short = 'a')]
-    artifact: Option<String>,
+    pub artifact: Option<String>,
     /// The group name of the created project (empty by default).
     #[arg(long, short = 'g')]
-    group: Option<String>,
+    pub group: Option<String>,
     /// The package name of the created project (group+artifact by default).
     #[arg(long)]
-    package: Option<String>,
+    pub package: Option<String>,
 }
 
 #[cfg(test)]
