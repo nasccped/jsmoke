@@ -1,3 +1,6 @@
+//! # Project Name module
+//!
+//! Provides project name parsing + it's utilities.
 mod error;
 
 use crate::utils::{OptionallyFrom, SurelyUnwrap};
