@@ -12,22 +12,22 @@ const PROJECT_NAME_PATTERN: &str = r#"[A-Z][a-z|0-9|A-Z]*"#;
 
 /// A struct that wraps the project name data type.
 #[derive(Eq, PartialEq, Debug)]
-pub struct ProjectName<'a>(&'a str);
+pub struct ProjectName(Box<str>);
 
-impl<'a> ProjectName<'a> {
+impl ProjectName {
     /// Private [`From`] trait implementing.
     ///
     /// This function must be used only within this module, since all external construction should
     /// be built under [`TryFrom`] trait.
-    fn from(value: &'a str) -> Self {
+    fn from(value: &str) -> Self {
         let re = Regex::new(PROJECT_NAME_PATTERN).surely_unwrap();
-        Self(re.find(value).surely_unwrap().as_str())
+        Self(re.find(value).surely_unwrap().as_str().into())
     }
 }
 
-impl<'a> TryFrom<Option<&'a str>> for ProjectName<'a> {
-    type Error = Error<'a>;
-    fn try_from(value: Option<&'a str>) -> Result<Self, Self::Error> {
+impl TryFrom<Option<&str>> for ProjectName {
+    type Error = Error;
+    fn try_from(value: Option<&str>) -> Result<Self, Self::Error> {
         let value = value.ok_or(Error::NoProjectName)?;
         if let Some(e) = Error::optionally_from(value) {
             Err(e)
@@ -41,6 +41,11 @@ impl<'a> TryFrom<Option<&'a str>> for ProjectName<'a> {
 mod test {
     use super::*;
 
+    /// Fast project name function.
+    fn fpn<T: Into<Box<str>>>(value: T) -> ProjectName {
+        ProjectName(value.into())
+    }
+
     #[test]
     #[should_panic]
     fn panick_it() {
@@ -50,9 +55,9 @@ mod test {
     #[test]
     fn dont_panick_it() {
         let pairs = [
-            ("    SomeName ", ProjectName("SomeName")),
-            ("Other", ProjectName("Other")),
-            ("\tNumbers55Too", ProjectName("Numbers55Too")),
+            ("    SomeName ", fpn("SomeName")),
+            ("Other", fpn("Other")),
+            ("\tNumbers55Too", fpn("Numbers55Too")),
         ];
         for (input, expected) in pairs.into_iter() {
             assert_eq!(ProjectName::try_from(Some(input)), Ok(expected));

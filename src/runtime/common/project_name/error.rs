@@ -1,4 +1,4 @@
-use crate::utils::OptionallyFrom;
+use crate::utils::{OptionallyFrom, Verbose};
 use regex::{Error as RegexError, Regex};
 use thiserror::Error as ThisError;
 
@@ -21,66 +21,88 @@ mod patterns {
 
 /// Error type when trying to parse the [`super::ProjectName`].
 #[derive(ThisError, Debug, PartialEq)]
-pub enum Error<'a> {
+pub enum Error {
     /// When no project name is given.
-    #[error("no project name provided")]
+    #[error("no project name provided/found")]
     NoProjectName,
     /// When project name is empty string.
     #[error("project name is whitespace only")]
     WhiteSpace,
     /// When project name starts with a number.
     #[error("project name starts with number: {0}")]
-    StartsWithNumber(&'a str),
+    StartsWithNumber(Box<str>),
     /// When project name is a compound name.
     #[error("project name is compound: {0}")]
-    CompoundName(&'a str),
+    CompoundName(Box<str>),
     /// When an invalid char is passed.
     #[error("invalid char at projet name: {0}")]
-    InvalidChar(&'a str),
+    InvalidChar(Box<str>),
     /// When project name isn't a CamelCase pattern.
     #[error("project name isn't CamelCase: {0}")]
-    NotCamelCase(&'a str),
+    NotCamelCase(Box<str>),
     /// [`regex::Error`] variant.
-    #[error("unexpected error when regexing: {0:?}")]
+    #[error("unexpected error when regexing")]
     Unexpected(RegexError),
+}
+
+impl Verbose for Error {
+    fn print_verbose(&self) {
+        match self {
+            Self::WhiteSpace | Self::NoProjectName => {}
+            Self::StartsWithNumber(_) => eprintln!("That's not allowed by the Java syntax rule."),
+            Self::InvalidChar(_) => eprintln!(
+                "Java compiler expects only numerics (0-9) and alpha. chars as
+class names."
+            ),
+            Self::CompoundName(_) | Self::NotCamelCase(_) => {
+                eprintln!("This isn't allowed. Use CamelCase pattern instead!")
+            }
+            Self::Unexpected(err) => eprintln!(
+                "That's an unexpected behavior. Error probably occured at
+regex libray (or I wrote a bad code, as well). Look the
+debug display: {:?}",
+                err
+            ),
+        }
+    }
 }
 
 // constructors shorthand. using this since I can't use the enum-variant generator due to type
 // constraints...
-impl<'a> Error<'a> {
+impl Error {
     /// Create [`Error::NoProjectName`].
-    fn no_name(_: &'a str) -> Self {
+    fn no_name<T: Into<Box<str>>>(_: T) -> Self {
         Self::NoProjectName
     }
     /// Create [`Error::WhiteSpace`].
-    fn white_space(_: &'a str) -> Self {
+    fn white_space<T: Into<Box<str>>>(_: T) -> Self {
         Self::WhiteSpace
     }
     /// Create [`Error::StartsWithNumber`].
-    fn starts_with_number(value: &'a str) -> Self {
-        Self::StartsWithNumber(value)
+    fn starts_with_number<T: Into<Box<str>>>(value: T) -> Self {
+        Self::StartsWithNumber(value.into())
     }
     /// Create [`Error::CompoundName`].
-    fn compound_name(value: &'a str) -> Self {
-        Self::CompoundName(value)
+    fn compound_name<T: Into<Box<str>>>(value: T) -> Self {
+        Self::CompoundName(value.into())
     }
     /// Create [`Error::InvalidChar`].
-    fn invalid_char(value: &'a str) -> Self {
-        Self::InvalidChar(value)
+    fn invalid_char<T: Into<Box<str>>>(value: T) -> Self {
+        Self::InvalidChar(value.into())
     }
     /// Create [`Error::NotCamelCase`].
-    fn not_camel_case(value: &'a str) -> Self {
-        Self::NotCamelCase(value)
+    fn not_camel_case<T: Into<Box<str>>>(value: T) -> Self {
+        Self::NotCamelCase(value.into())
     }
 }
 
-impl<'a> OptionallyFrom<&'a str> for Error<'a> {
+impl<'a> OptionallyFrom<&'a str> for Error {
     fn optionally_from(value: &'a str) -> Option<Self>
     where
         Self: Sized,
     {
-        type PatternMapping<'b> = (&'static str, fn(&'b str) -> Error<'b>);
-        let mapping: [PatternMapping<'a>; 6] = [
+        type PatternMapping<'a> = (&'static str, fn(&'a str) -> Error);
+        let mapping: [PatternMapping; 6] = [
             (patterns::NO_NAME, Error::no_name),
             (patterns::WHITESPACE, Error::white_space),
             (patterns::INVALID_CHAR, Error::invalid_char),
@@ -107,7 +129,7 @@ mod test {
     use super::*;
 
     /// Converts a [`str`] slice into an [`Error`].
-    fn str_into_error<'a>(input: &'a str) -> Option<Error<'a>> {
+    fn str_into_error<'a>(input: &'a str) -> Option<Error> {
         Error::optionally_from(input)
     }
 
