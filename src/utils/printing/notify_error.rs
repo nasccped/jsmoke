@@ -6,14 +6,14 @@ use std::fmt::Display;
 ///
 /// Can be applied to a given type an print info based on it's inner data. Works well with
 /// [`thiserror::Error`] macro.
-pub trait NotifyError {
+pub trait NotifyFailure {
     /// Notify the error to the user (prints to stderr).
-    fn notify_error(&self);
+    fn notify_failure(&self);
 }
 
 // auto - implements to all types that implements display...
-impl<T: Display> NotifyError for T {
-    fn notify_error(&self) {
+impl<T: Display> NotifyFailure for T {
+    fn notify_failure(&self) {
         eprintln!(
             "{} {}\n",
             NotifyTags::Error,

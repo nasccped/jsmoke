@@ -2,7 +2,7 @@
 //!
 //! Provides printing utilities like:
 //! - `NotifySuccess` for successfully runtime.
-//! - `NotifyError` for failed runtime.
+//! - `NotifyFailure` for failed runtime.
 //! - `NotifyWarning` for non-fatal status.
 //! - `SimpleNotify` for just simple printing.
 mod notify_error;
@@ -11,7 +11,7 @@ mod notify_warning;
 mod simple_notify;
 
 use colored::Colorize;
-pub use notify_error::NotifyError;
+pub use notify_error::NotifyFailure;
 pub use notify_success::NotifySuccess;
 pub use notify_warning::NotifyWarning;
 pub use simple_notify::SimpleNotify;
