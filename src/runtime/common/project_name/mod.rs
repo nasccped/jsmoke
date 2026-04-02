@@ -19,17 +19,17 @@ impl ProjectName {
     ///
     /// This function must be used only within this module, since all external construction should
     /// be built under [`TryFrom`] trait.
-    fn from(value: &str) -> Self {
+    fn from<T: AsRef<str>>(value: T) -> Self {
         let re = Regex::new(PROJECT_NAME_PATTERN).surely_unwrap();
-        Self(re.find(value).surely_unwrap().as_str().into())
+        Self(re.find(value.as_ref()).surely_unwrap().as_str().into())
     }
 }
 
-impl TryFrom<Option<&str>> for ProjectName {
+impl<T: AsRef<str> + Clone> TryFrom<Option<T>> for ProjectName {
     type Error = Error;
-    fn try_from(value: Option<&str>) -> Result<Self, Self::Error> {
+    fn try_from(value: Option<T>) -> Result<Self, Self::Error> {
         let value = value.ok_or(Error::NoProjectName)?;
-        if let Some(e) = Error::optionally_from(value) {
+        if let Some(e) = Error::optionally_from(value.clone()) {
             Err(e)
         } else {
             Ok(ProjectName::from(value))

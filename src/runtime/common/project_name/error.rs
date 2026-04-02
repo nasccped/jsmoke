@@ -96,8 +96,8 @@ impl Error {
     }
 }
 
-impl<'a> OptionallyFrom<&'a str> for Error {
-    fn optionally_from(value: &'a str) -> Option<Self>
+impl<T: AsRef<str>> OptionallyFrom<T> for Error {
+    fn optionally_from(value: T) -> Option<Self>
     where
         Self: Sized,
     {
@@ -110,11 +110,12 @@ impl<'a> OptionallyFrom<&'a str> for Error {
             (patterns::STARTS_WITH_NUMBER, Error::starts_with_number),
             (patterns::NOT_CAMEL_CASE, Error::not_camel_case),
         ];
+        let valref = value.as_ref();
         for (pat, func) in mapping.into_iter() {
             match Regex::new(pat).map_err(Self::Unexpected) {
                 Ok(r) => {
-                    if r.is_match(value) {
-                        return Some(func(value));
+                    if r.is_match(valref) {
+                        return Some(func(valref));
                     }
                 }
                 Err(e) => return Some(e),
