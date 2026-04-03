@@ -1,42 +1,54 @@
 mod common;
+mod operation;
+mod output;
 
-use crate::cli::App;
+use crate::{
+    cli::{App, subcommands::Subcommand},
+    runtime::{
+        operation::OperationTrait,
+        output::{OutputNotify, RuntimeOutput},
+    },
+    utils::{Verbose, visuals::style::CommandStyle},
+};
+pub use output::{IntoErr, IntoExitCode, IntoOk};
 use std::process::ExitCode;
+use thiserror::Error as ThisError;
 
-/// Type that mimics the a [`Result`] enum since I can't implement `Into<ExitCode>` for foreign
-/// types.
-pub enum Output {
-    /// Ok variant.
-    Ok(OkVariant),
-    /// Error variant.
-    Err(ErrVariant),
-}
+/// Unit error when no subcommand is passed.
+#[derive(ThisError, Debug)]
+#[error("no subcommand given")]
+struct NoSubcommand;
 
-/// Temp type for Ok shadowing...
-pub struct OkVariant;
-/// Temp type for Err shadowing...
-pub struct ErrVariant;
-
-#[allow(clippy::from_over_into)]
-impl Into<ExitCode> for Output {
-    fn into(self) -> ExitCode {
-        match self {
-            Output::Ok(_) => ExitCode::SUCCESS,
-            _ => ExitCode::FAILURE,
-        }
+impl Verbose for NoSubcommand {
+    fn print_verbose(&self) {
+        eprintln!("Consider using {}", "jsmk --help".command_style());
     }
 }
 
 /// Run the jsmoke program based on the [`App`] inner fields.
-pub fn run(app: App) -> Output {
-    if app.verbose {
-        println!("verbose is enabled");
+pub fn run(app: App) -> ExitCode {
+    let (subcommand, out, force, verbose): (Subcommand, RuntimeOutput, bool, bool);
+    (force, verbose) = (app.force, app.verbose);
+    match app.subcommand {
+        Some(s) => subcommand = s,
+        None => {
+            out = NoSubcommand.into_err();
+            out.output_notify();
+            if verbose {
+                out.print_verbose();
+            }
+            return out.into_exit_code();
+        }
     }
-    if app.force {
-        println!("forcing action...");
-        Output::Ok(OkVariant)
-    } else {
-        eprintln!("no action being forced! Returning an err");
-        Output::Err(ErrVariant)
+    out = match subcommand {
+        Subcommand::New(x) => {
+            operation::NewOperation::try_from(x).and_then(|o| o.run(force, verbose))
+        }
+        other => unreachable!("this subcommand was called: {:?}", other),
+    };
+    out.output_notify();
+    if verbose {
+        out.print_verbose();
     }
+    out.into_exit_code()
 }
