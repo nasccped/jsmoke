@@ -6,6 +6,7 @@ mod error;
 use crate::utils::{OptionallyFrom, SurelyUnwrap};
 pub use error::Error;
 use regex::Regex;
+use std::fmt::Display;
 
 /// The project name regex pattern.
 const PROJECT_NAME_PATTERN: &str = r#"[A-Z][a-z|0-9|A-Z]*"#;
@@ -34,6 +35,12 @@ impl<T: AsRef<str> + Clone> TryFrom<Option<T>> for ProjectName {
         } else {
             Ok(ProjectName::from(value))
         }
+    }
+}
+
+impl Display for ProjectName {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
