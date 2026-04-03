@@ -6,13 +6,13 @@ use clap::Args;
 /// Subcommand responsible for create new projects within a new directory.
 #[derive(Args, Debug)]
 pub struct New {
-    /// The name of the created project (CamelCase expected).
-    pub name: Option<String>,
-    /// Where to place the new project (same as `name` by default).
+    /// The artifact of the project being created (auto fix to `artifactId`).
+    pub artifact: Option<String>,
+    /// Where to place the new project (same as `artifact` by default).
     #[arg(long, short = 'p')]
     pub path: Option<String>,
     /// Lock the project to the version regex.
-    #[arg(long = "lock", short = 'l', value_name = "(>|=|>=|<|<=)VERSION")]
+    #[arg(long = "lock", short = 'l', value_name = "(>= | =)VERSION")]
     pub lock_version: Option<String>,
     /// The author(s) of the project.
     #[arg(long, value_name = "NAME1<EMAIL1>,N2...")]
@@ -23,15 +23,9 @@ pub struct New {
     /// The prefered version control system to be used (git as default).
     #[arg(long)]
     pub vcs: Option<String>,
-    /// The artifact name of the created project (empty by default).
-    #[arg(long, short = 'a')]
-    pub artifact: Option<String>,
     /// The group name of the created project (empty by default).
     #[arg(long, short = 'g')]
     pub group: Option<String>,
-    /// The package name of the created project (group+artifact by default).
-    #[arg(long)]
-    pub package: Option<String>,
 }
 
 #[cfg(test)]
@@ -89,34 +83,28 @@ mod test {
             "--package",
             PACKAGE,
         ]);
-        assert!(new.name.is_some_and(|n| n == NAME));
+        assert!(new.artifact.is_some_and(|n| n == NAME));
         assert!(new.path.is_some_and(|n| n == PATH));
         assert!(new.lock_version.is_some_and(|n| n == LOCK));
-        assert!(new.artifact.is_some_and(|n| n == ARTIFACT));
         assert!(new.group.is_some_and(|n| n == GROUP));
-        assert!(new.package.is_some_and(|n| n == PACKAGE));
     }
 
     #[test]
     fn short() {
         let new =
             NewTest::parse_from_iter([NAME, "-p", PATH, "-l", LOCK, "-a", ARTIFACT, "-g", GROUP]);
-        assert!(new.name.is_some_and(|n| n == NAME));
+        assert!(new.artifact.is_some_and(|n| n == NAME));
         assert!(new.path.is_some_and(|n| n == PATH));
         assert!(new.lock_version.is_some_and(|n| n == LOCK));
-        assert!(new.artifact.is_some_and(|n| n == ARTIFACT));
         assert!(new.group.is_some_and(|n| n == GROUP));
-        assert!(new.package.is_none());
     }
 
     #[test]
     fn empty() {
         let new = NewTest::parse_from_iter([]);
-        assert!(new.name.is_none());
+        assert!(new.artifact.is_none());
         assert!(new.path.is_none());
         assert!(new.lock_version.is_none());
-        assert!(new.artifact.is_none());
         assert!(new.group.is_none());
-        assert!(new.package.is_none());
     }
 }
