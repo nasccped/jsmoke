@@ -130,7 +130,7 @@ mod test {
     use super::*;
 
     /// Converts a [`str`] slice into an [`Error`].
-    fn str_into_error<'a>(input: &'a str) -> Option<Error> {
+    fn str_into_error(input: &str) -> Option<Error> {
         Error::optionally_from(input)
     }
 
