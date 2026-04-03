@@ -9,6 +9,7 @@ pub trait TickIt: Display {
 
 impl<T: Display> TickIt for T {
     fn tick_it(&self) -> String {
-        format!("{}{}{}", "`".bright_white(), self, "`".bright_white())
+        let t = "`".bright_white();
+        format!("{}{}{}", t, self, t)
     }
 }
