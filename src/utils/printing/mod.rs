@@ -5,13 +5,13 @@
 //! - `NotifyFailure` for failed runtime.
 //! - `NotifyWarning` for non-fatal status.
 //! - `SimpleNotify` for just simple printing.
-mod notify_error;
+mod notify_failure;
 mod notify_success;
 mod notify_warning;
 mod simple_notify;
 
 use colored::Colorize;
-pub use notify_error::NotifyFailure;
+pub use notify_failure::NotifyFailure;
 pub use notify_success::NotifySuccess;
 pub use notify_warning::NotifyWarning;
 pub use simple_notify::SimpleNotify;
@@ -34,8 +34,8 @@ impl Display for NotifyTags {
             "{}{}",
             match self {
                 Self::Ok => "ok".bright_green(),
-                Self::Error => "error".bright_red(),
-                Self::Warning => "warning".bright_yellow(),
+                Self::Error => "fail".bright_red(),
+                Self::Warning => "warn".bright_yellow(),
             },
             ":".bright_white()
         )
