@@ -5,7 +5,9 @@
 mod command;
 mod quotes;
 mod suggestion;
+mod term;
 mod ticks;
 
 pub use command::CommandStyle;
 pub use suggestion::SuggestionStyle;
+pub use term::TermStyle;
