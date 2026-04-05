@@ -8,7 +8,7 @@ mod surely_unwrap;
 mod verbose;
 pub mod visuals;
 
-pub use inner::Inner;
+pub use inner::{Inner, InnerAndConsume};
 pub use optionally_from::OptionallyFrom;
 pub use surely_unwrap::SurelyUnwrap;
 pub use verbose::Verbose;
