@@ -4,6 +4,7 @@
 mod inner;
 mod optionally_from;
 pub mod printing;
+pub mod regex;
 mod surely_unwrap;
 mod verbose;
 pub mod visuals;
