@@ -13,6 +13,10 @@ pub static WHITESPACE_REGEX: LazyLock<Regex> =
 pub static ASCII_ALPHABETIC_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"[a-zA-Z]"#).surely_unwrap());
 
+/// Regex for ascii alphanumeric detection. Works both for lowercase and uppercase.
+pub static ASCII_ALPHANUMERIC_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"[a-zA-Z0-9]"#).surely_unwrap());
+
 /// Function to `startswith` detection. Note that this variable returns a function that results
 /// into a [`Regex`] (unwrap at initialization), so, it can [`panic`] if invalid regex syntax is
 /// used.
