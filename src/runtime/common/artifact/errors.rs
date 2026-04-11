@@ -34,7 +34,7 @@ pub enum ArtifactError {
     Unrecognizable(Box<str>),
     /// When the artifact name is already reserved by Java (like keyword or type name).
     #[error("the provided artifact is reserved by Java itself ({0})")]
-    Reserved(Box<str>),
+    Reserved(&'static str),
 }
 
 impl ArtifactError {
@@ -87,7 +87,7 @@ impl ArtifactError {
     /// the `s` input is expected to be already trimmed + lowercase.
     pub fn reserved_if_true<T: AsRef<str>>(s: T) -> Option<Self> {
         let s = s.as_ref();
-        ReservedWords::is_reserved(s).then_some(Self::Reserved(s.into()))
+        ReservedWords::get_if_contained(s).map(Self::Reserved)
     }
 }
 

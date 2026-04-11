@@ -1,4 +1,4 @@
-/// Java reserveds words.
+/// Java reserved words.
 const RESERVEDS: [&str; 69] = [
     // keywords
     "abstract",
@@ -80,9 +80,15 @@ const RESERVEDS: [&str; 69] = [
 pub struct ReservedWords;
 
 impl ReservedWords {
-    /// Returns `true` if the provided string is reserved (according to [`RESERVEDS`]).
-    pub fn is_reserved<T: AsRef<str>>(s: T) -> bool {
+    /// Returns an [`Option`] of the `s` string if it's recognized as reserved word.
+    ///
+    /// Avoided a `fn is_reserved(...) -> bool` since it triggers if reserved, but an extra
+    /// allocation is necessary to store the reserved input.
+    ///
+    /// Just return the word as `&'static str` instead.
+    pub fn get_if_contained<T: AsRef<str>>(s: T) -> Option<&'static str> {
         let fixed = s.as_ref().to_lowercase();
-        RESERVEDS.into_iter().any(|r| r == fixed.trim())
+        let s = fixed.trim();
+        RESERVEDS.into_iter().find(|item| item == &s)
     }
 }

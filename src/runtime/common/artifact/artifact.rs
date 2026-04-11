@@ -185,7 +185,7 @@ mod test {
         let long = |x: &str| Err::<Artifact, ArtifactError>(ArtifactError::Long(x.into()));
         let unrec =
             |x: &str| Err::<Artifact, ArtifactError>(ArtifactError::Unrecognizable(x.into()));
-        let rese = |x: &str| Err::<Artifact, ArtifactError>(ArtifactError::Reserved(x.into()));
+        let rese = |x: &'static str| Err::<Artifact, ArtifactError>(ArtifactError::Reserved(x));
         assert_eq!(a(""), empty());
         assert_eq!(a("  "), white());
         assert_eq!(a("\t"), white());
