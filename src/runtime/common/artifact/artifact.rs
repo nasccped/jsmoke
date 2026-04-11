@@ -4,7 +4,7 @@ use regex::Regex;
 use std::fmt::Display;
 use std::sync::LazyLock;
 
-/// Regex matcher for [`Allowed`].
+/// Regex matcher for [`Artifact::Allowed`].
 static ALLOWED_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     let pat = format!(
         "^[a-z][a-z0-9]{{{},{}}}$",
