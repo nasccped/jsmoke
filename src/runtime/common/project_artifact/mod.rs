@@ -1,7 +1,6 @@
 //! # Artifact module
 //!
 //! Provides [`Artifact`], [`ArtifactError`] and it's public implementations.
-#![allow(clippy::module_inception)]
 mod artifact;
 mod errors;
 

@@ -1,5 +1,11 @@
 //! # Common module
 //!
 //! Common data types + implementing used during runtime.
-pub mod artifact;
-pub mod reserved_words;
+mod project_artifact;
+mod reserved_words;
+
+// public usage
+pub use project_artifact::Artifact;
+
+// non public usage
+use reserved_words::ReservedWords;
