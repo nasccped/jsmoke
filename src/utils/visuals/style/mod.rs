@@ -4,6 +4,7 @@
 //! on context instead of hardcode).
 mod command;
 mod number;
+mod path;
 mod quotes;
 mod suggestion;
 mod term;
@@ -11,5 +12,6 @@ mod ticks;
 
 pub use command::CommandStyle;
 pub use number::NumberStyle;
+pub use path::PathStyle;
 pub use suggestion::SuggestionStyle;
 pub use term::TermStyle;
