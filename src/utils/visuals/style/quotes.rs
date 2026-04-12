@@ -6,6 +6,7 @@ pub trait QuoteIt: Display {
     /// Apply simple quotes on it.
     fn simple_quote(&self) -> String;
     /// Apply double quotes on it.
+    #[allow(dead_code)]
     fn double_quote(&self) -> String;
 }
 
