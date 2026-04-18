@@ -199,7 +199,7 @@ impl<'h> Token<'h> {
             Self::String(s) => s.cyan(),
             Self::Other(o) => o.bright_purple(),
             Self::Number(n) => n.yellow(),
-            Self::AndOper | Self::OrOper => self.inner().bright_green(),
+            Self::AndOper | Self::OrOper => self.inner().bright_white(),
         }
     }
 }
