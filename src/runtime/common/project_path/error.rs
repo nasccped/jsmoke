@@ -87,11 +87,10 @@ impl Verbose for ProjectPathError {
             let parents = parents.display();
             eprintln!("Instead, consider creating the parent dirs, and then,");
             eprintln!("initializing the project:\n");
-            // FIXME: turn command printing into stylized!
             eprintln!(
                 "{} followed by {}",
-                format!("mkdir -p '{}' && cd '{}'", parents, parents),
-                format!("jsmk new {}", child.display()).command_style()
+                format!("mkdir -p '{}' && cd '{}'", parents, parents).command_style(),
+                format!("jsmk new {}", child.display()).command_style(),
             );
         }
     }
