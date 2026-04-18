@@ -7,7 +7,7 @@ use crate::utils::{
         ASCII_ALPHANUMERIC_REGEX, EMPTY_REGEX, ENDS_WITH_REGEX, NEW_REGEX_WITH, STARTS_WITH_REGEX,
         WHITESPACE_REGEX,
     },
-    visuals::style::{NumberStyle, SuggestionStyle},
+    visuals::style::{ItemList, NumberStyle, SuggestionStyle},
 };
 use thiserror::Error as ThisError;
 
@@ -27,7 +27,7 @@ pub enum ArtifactError {
     #[error("artifact name can't be this tiny ({0})")]
     Tiny(Box<str>),
     /// When the artifact name is long.
-    #[error("artifact name can't be this long ({0})")]
+    #[error("artifact name can't be this long ({} chars)", .0.len())]
     Long(Box<str>),
     /// When the artifact name is obviously unallowed (starts with hyphen, contains accent, ...)
     #[error("the provided artifact isn't recognized as a valid pattern ({0})")]
@@ -107,7 +107,7 @@ impl Verbose for ArtifactError {
             eprintln!("Consider using a simpler artifact name, such as:");
             ARTIFACT_NAME_SUGGESTION
                 .iter()
-                .for_each(|name| eprintln!("- {}", name.suggestion_style()));
+                .for_each(|name| eprintln!(" {}", name.suggestion_style().item_list_style()));
         } else if let Self::Reserved(_) = self {
             eprintln!(
                 "Note that {} is an valid artifact but it'll be",
