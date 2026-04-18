@@ -51,7 +51,7 @@ static FLAG_PATTERN: LazyLock<String> =
 
 /// String [`Regex`] pattern.
 static STRING_PATTERN: LazyLock<String> =
-    LazyLock::new(|| format!(r#"(?<{}>'.*'|".*")"#, groups::STRING));
+    LazyLock::new(|| format!(r#"(?<{}>'[^']*'|"[^"]*")"#, groups::STRING));
 
 /// Subcommand [`Regex`] pattern.
 static SUBCOMMAND_PATTERN: LazyLock<String> =
@@ -350,6 +350,19 @@ mod test {
         assert_eq!(tks.next(), Some(Token::Number("23")));
         assert_eq!(tks.next(), Some(Token::Flag("--as")));
         assert_eq!(tks.next(), Some(Token::Number("32")));
+        assert_eq!(tks.next(), None);
+    }
+
+    #[test]
+    fn extra_cases() {
+        let inp = "mkdir -p 'parent' && cd 'child'";
+        let mut tks = Token::get_tokens(inp).into_iter();
+        assert_eq!(tks.next(), Some(Token::Command("mkdir")));
+        assert_eq!(tks.next(), Some(Token::Flag("-p")));
+        assert_eq!(tks.next(), Some(Token::String("'parent'")));
+        assert_eq!(tks.next(), Some(Token::AndOper));
+        assert_eq!(tks.next(), Some(Token::Command("cd")));
+        assert_eq!(tks.next(), Some(Token::String("'child'")));
         assert_eq!(tks.next(), None);
     }
 }
