@@ -1,7 +1,10 @@
-use crate::utils::{
-    Verbose,
-    regex::{EMPTY_REGEX, NEW_REGEX_WITH, WHITESPACE_REGEX},
-    visuals::style::CommandStyle,
+use crate::{
+    utils::{
+        regex::{EMPTY_REGEX, NEW_REGEX_WITH, WHITESPACE_REGEX},
+        verbose::{Verbose, VerboseWrapper},
+        visuals::style::CommandStyle,
+    },
+    verbose_wrapper,
 };
 use std::{ffi::OsStr, path::Path, path::PathBuf};
 use thiserror::Error as ThisError;
@@ -79,19 +82,22 @@ impl ProjectPathError {
 }
 
 impl Verbose for ProjectPathError {
-    fn print_verbose(&self) {
-        if matches!(self, Self::Relative(_)) {
-            eprintln!("If you're trying to create a project at the curdir, consider");
-            eprintln!("using {} instead!", "jsmk init".command_style());
-        } else if let Self::MultiComponents { parents, child } = self {
-            let parents = parents.display();
-            eprintln!("Instead, consider creating the parent dirs, and then,");
-            eprintln!("initializing the project:\n");
-            eprintln!(
-                "{} followed by {}",
-                format!("mkdir -p '{}' && cd '{}'", parents, parents).command_style(),
-                format!("jsmk new {}", child.display()).command_style(),
-            );
+    fn as_verbose(&self) -> VerboseWrapper {
+        match self {
+            Self::Relative(_) => verbose_wrapper!(
+                "If you're trying to create a project at the curdir, consider";
+                "using {} instead!" => "jsmk init".command_style();
+            ),
+            Self::MultiComponents { parents, child } => verbose_wrapper!(
+                "Instead, consider creating the parent dirs, and then,";
+                "initializing the project:";
+                "";
+                "{} followed by {}" =>
+                    format!("mkdir -p '{}' && cd '{}'", parents, parents).command_style(),
+                    format!("jsmk new {}", child.display()).command_style()
+                ;
+            ),
+            _ => verbose_wrapper!(),
         }
     }
 }

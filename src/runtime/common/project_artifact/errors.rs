@@ -2,13 +2,14 @@ use super::{
     super::reserved_words::ReservedWords, MAXIMUM_ARTIFACT_LENGTH, MINIMUM_ARTIFACT_LENGTH,
 };
 use crate::utils::{
-    Verbose,
     regex::{
         ASCII_ALPHANUMERIC_REGEX, EMPTY_REGEX, ENDS_WITH_REGEX, NEW_REGEX_WITH, STARTS_WITH_REGEX,
         WHITESPACE_REGEX,
     },
+    verbose::{Verbose, VerboseWrapper},
     visuals::style::{ItemList, NumberStyle, SuggestionStyle},
 };
+use crate::verbose_wrapper;
 use thiserror::Error as ThisError;
 
 /// Suggestion for artifact names.
@@ -92,30 +93,32 @@ impl ArtifactError {
 }
 
 impl Verbose for ArtifactError {
-    fn print_verbose(&self) {
-        if let Self::Tiny(_) = self {
-            eprintln!(
-                "Consider using an artifact at least {} chars long!",
-                MINIMUM_ARTIFACT_LENGTH.number_style()
-            );
-        } else if let Self::Long(_) = self {
-            eprintln!(
-                "Consider using an artifact of no more than {} chars long!",
-                MAXIMUM_ARTIFACT_LENGTH.number_style()
-            );
-        } else if let Self::Unrecognizable(_) = self {
-            eprintln!("Consider using a simpler artifact name, such as:");
-            ARTIFACT_NAME_SUGGESTION
-                .iter()
-                .for_each(|name| eprintln!(" {}", name.suggestion_style().item_list_style()));
-        } else if let Self::Reserved(_) = self {
-            eprintln!(
-                "Note that {} is an valid artifact but it'll be",
-                "pri-vate".suggestion_style()
-            );
-            eprintln!("reduced to {} anyway.\n", "private".suggestion_style());
-            eprintln!("Avoid this by using an artifact that isn't (and can't be");
-            eprintln!("converted to) a reserved word!");
+    fn as_verbose(&self) -> VerboseWrapper {
+        match self {
+            Self::Tiny(_) => verbose_wrapper!(
+                "Consider using an artifact at least {} chars long!" =>
+                    MINIMUM_ARTIFACT_LENGTH.number_style()
+            ),
+            Self::Long(_) => verbose_wrapper!(
+                "Consider using an artifact of no more than {} chars long!" =>
+                    MAXIMUM_ARTIFACT_LENGTH.number_style()
+            ),
+            Self::Unrecognizable(_) => {
+                let mut local_vw =
+                    verbose_wrapper!("Consider using a simpler artifact name, such as:\n");
+                ARTIFACT_NAME_SUGGESTION.iter().for_each(|sug| {
+                    local_vw.pushln(format!(" {}", sug.suggestion_style()).item_list_style());
+                });
+                local_vw
+            }
+            Self::Reserved(_) => verbose_wrapper!(
+                "Note that {} is a valid artifact but it'll be" => "pri-vate".suggestion_style();
+                "reduced to {} anyway." => "private".suggestion_style();
+                "";
+                "Avoid this by using an artifact that isn't (and can't be";
+                "converted to) a reserved word!";
+            ),
+            _ => verbose_wrapper!(),
         }
     }
 }

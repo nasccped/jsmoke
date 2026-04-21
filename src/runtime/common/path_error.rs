@@ -1,4 +1,10 @@
-use crate::utils::Verbose;
+use crate::{
+    utils::{
+        verbose::{Verbose, VerboseWrapper},
+        visuals::style::ItemList,
+    },
+    verbose_wrapper,
+};
 use thiserror::Error as ThisError;
 
 /// Rust's [`std::env::current_dir`] function.
@@ -17,20 +23,20 @@ pub enum PathError {
 }
 
 impl Verbose for PathError {
-    fn print_verbose(&self) {
+    fn as_verbose(&self) -> VerboseWrapper {
         match self {
             Self::Current => {
-                // FIXME: use rust_code styling for printing bellow.
-                eprintln!(
-                    "This happens when Rust's {} function fails.\n",
-                    CURRENT_PATH_FUNCTION
+                let mut vw = verbose_wrapper!(
+                    "This happens when Rust's {} function fails." =>
+                        CURRENT_PATH_FUNCTION;
+                    "The possible causes (according to function's doc) are:";
                 );
-                eprintln!("The possible causes (according to function's doc) are:");
                 CURRENT_DIR_FUNCTION_ERR_CAUSES
                     .into_iter()
                     .for_each(|cause| {
-                        eprintln!("- {}", cause);
+                        vw.pushln(cause.item_list_style());
                     });
+                vw
             }
         }
     }
