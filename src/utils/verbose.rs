@@ -37,7 +37,7 @@ macro_rules! verbose_wrapper {
                 format!($form $(, $($arg),* )?)
             ),*
         ];
-        VerboseWrapper(__VWrapper::from(v))
+        VerboseWrapper::from(v)
     }};
 }
 
@@ -50,6 +50,13 @@ pub trait Verbose {
 /// Special type for verbose message wrapping. It handle message storing by [`verbose_wrapper`]
 /// macro and it's private functions.
 pub struct VerboseWrapper(__VWrapper);
+
+// impl Verbose for wrapper. Can be self used within `fn func(val: impl Verbose)` functions.
+impl Verbose for VerboseWrapper {
+    fn as_verbose(&self) -> VerboseWrapper {
+        self.into()
+    }
+}
 
 impl VerboseWrapper {
     /// Push a new element into a new line.
@@ -67,6 +74,12 @@ impl VerboseWrapper {
     /// Returns the private field inner message.
     pub fn get_message(&self) -> Option<&str> {
         self.0.message()
+    }
+}
+
+impl From<Vec<String>> for VerboseWrapper {
+    fn from(value: Vec<String>) -> Self {
+        Self(__VWrapper::from(value))
     }
 }
 
