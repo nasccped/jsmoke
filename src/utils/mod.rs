@@ -1,13 +1,14 @@
 //! # jsmoke utilities module
 //!
 //! A module that provides useful data structures along the runtime.
-mod inner;
-mod optionally_from;
-pub mod printing;
+pub mod notifiers;
 pub mod regex;
-mod surely_unwrap;
 pub mod verbose;
 pub mod visuals;
+
+mod inner;
+mod optionally_from;
+mod surely_unwrap;
 
 pub use inner::{Inner, InnerAndConsume};
 pub use optionally_from::OptionallyFrom;
