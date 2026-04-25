@@ -1,5 +1,9 @@
 use super::{GlobalPrinter, common::PathError};
-use std::{path::PathBuf, rc::Rc};
+use std::{
+    cell::{Ref, RefCell, RefMut},
+    path::PathBuf,
+    rc::Rc,
+};
 
 /// Program's global fields used across runtime.
 pub struct GlobalContext {
@@ -8,32 +12,33 @@ pub struct GlobalContext {
     /// Current user path.
     curpath: Result<PathBuf, PathError>,
     /// Printer helper.
-    printer: Rc<GlobalPrinter>,
+    printer: Rc<RefCell<GlobalPrinter>>,
 }
 
-impl GlobalContext {
-    /// Creates a new [`GlobalContext`] item with default fields.
-    pub fn new() -> Self {
+impl Default for GlobalContext {
+    fn default() -> Self {
         let flags = FlagTriggers::default();
         let curpath = std::env::current_dir().map_err(|_| PathError::Current);
-        let printer = Rc::new(GlobalPrinter::default());
+        let printer = Rc::new(RefCell::new(GlobalPrinter::default()));
         Self {
             flags,
             curpath,
             printer,
         }
     }
+}
 
+impl GlobalContext {
     /// Set a force value to [`FlagTriggers`].
-    pub fn with_force(&mut self, force: bool) -> Self {
+    pub fn with_force(&mut self, force: bool) -> &mut Self {
         self.flags.force = force;
-        *self
+        self
     }
 
     /// Set a verbose value to [`FlagTriggers`].
-    pub fn with_verbose(&mut self, verbose: bool) -> Self {
+    pub fn with_verbose(&mut self, verbose: bool) -> &mut Self {
         self.flags.verbose = verbose;
-        *self
+        self
     }
 
     /// If the `force` trigger is enabled.
@@ -46,9 +51,14 @@ impl GlobalContext {
         self.flags.verbose
     }
 
-    /// Returns the inner printer reference.
-    pub fn get_printer(&self) -> Rc<GlobalPrinter> {
-        self.printer
+    /// Returns the inner printer reference (**imutable**).
+    pub fn get_printer(&self) -> Ref<'_, GlobalPrinter> {
+        self.printer.borrow()
+    }
+
+    /// Returns the inner printer reference (**mutable**).
+    pub fn get_mut_printer(&mut self) -> RefMut<'_, GlobalPrinter> {
+        self.printer.borrow_mut()
     }
 }
 
