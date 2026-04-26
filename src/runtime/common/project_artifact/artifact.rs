@@ -46,6 +46,12 @@ impl Artifact {
         }
     }
 
+    /// Builds a [`Result`] over an optional string. Works similar to `try_from(&str)`, but fits
+    /// to `artifact` field from cli subcommand.
+    pub fn try_from_optional_string(s: Option<String>) -> Result<Self, ArtifactError> {
+        Self::try_from(s.unwrap_or_default().as_str())
+    }
+
     /// Creates a [`Artifact::Allowed`] from the given string.
     fn new_allowed<T: AsRef<str>>(s: T) -> Self {
         Self::Allowed(s.as_ref().into())
