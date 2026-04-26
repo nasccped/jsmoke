@@ -51,13 +51,6 @@ pub trait Verbose {
 /// macro and it's private functions.
 pub struct VerboseWrapper(__VWrapper);
 
-// impl Verbose for wrapper. Can be self used within `fn func(val: impl Verbose)` functions.
-impl Verbose for VerboseWrapper {
-    fn as_verbose(&self) -> VerboseWrapper {
-        self.into()
-    }
-}
-
 impl VerboseWrapper {
     /// Push a new element into a new line.
     pub fn pushln<S: AsRef<str>>(&mut self, item: S) -> &Self {
