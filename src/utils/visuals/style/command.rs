@@ -137,7 +137,7 @@ impl<'h> Inner<str> for Token<'h> {
 
 impl<'h> Token<'h> {
     /// Converts a haystack into a [`Vec<Token>`].
-    fn get_tokens(value: &'h str) -> Vec<Token<'h>> {
+    fn get_tokens(value: &'h str) -> Vec<Self> {
         let mut v = Vec::new();
         type MatchFromCapture<'h> = fn(&Captures<'h>) -> Option<Match<'h>>;
         type StrToToken<'h> = fn(&'h str) -> Token<'h>;
