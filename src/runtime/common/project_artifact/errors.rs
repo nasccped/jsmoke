@@ -2,6 +2,7 @@ use super::{
     super::reserved_words::ReservedWords, MAXIMUM_ARTIFACT_LENGTH, MINIMUM_ARTIFACT_LENGTH,
 };
 use crate::utils::{
+    notifiers::NotifyFailure,
     regex::{
         ASCII_ALPHANUMERIC_REGEX, EMPTY_REGEX, ENDS_WITH_REGEX, NEW_REGEX_WITH, STARTS_WITH_REGEX,
         WHITESPACE_REGEX,
@@ -37,6 +38,8 @@ pub enum ArtifactError {
     #[error("the provided artifact is reserved by Java itself ({0})")]
     Reserved(&'static str),
 }
+
+impl NotifyFailure for ArtifactError {}
 
 impl ArtifactError {
     /// Returns [`Some`] variant of [`ArtifactError::Empty`] if it matches for regex rules.

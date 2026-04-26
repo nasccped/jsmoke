@@ -1,5 +1,6 @@
 use crate::{
     utils::{
+        notifiers::NotifyFailure,
         regex::{EMPTY_REGEX, NEW_REGEX_WITH, WHITESPACE_REGEX},
         verbose::{Verbose, VerboseWrapper},
         visuals::style::CommandStyle,
@@ -35,6 +36,8 @@ pub enum ProjectPathError {
         child: Box<OsStr>,
     },
 }
+
+impl NotifyFailure for ProjectPathError {}
 
 impl ProjectPathError {
     /// Returns [`ProjectPathError::Empty`] variant if it matches regex.
@@ -88,15 +91,17 @@ impl Verbose for ProjectPathError {
                 "If you're trying to create a project at the curdir, consider";
                 "using {} instead!" => "jsmk init".command_style();
             ),
-            Self::MultiComponents { parents, child } => verbose_wrapper!(
-                "Instead, consider creating the parent dirs, and then,";
-                "initializing the project:";
-                "";
-                "{} followed by {}" =>
-                    format!("mkdir -p '{}' && cd '{}'", parents, parents).command_style(),
-                    format!("jsmk new {}", child.display()).command_style()
-                ;
-            ),
+            Self::MultiComponents { parents, child } => {
+                let par = parents.to_string_lossy();
+                verbose_wrapper!(
+                    "Instead, consider creating the parent dirs, and then,";
+                    "initializing the project:";
+                    "";
+                    "{} followed by {}" =>
+                        format!("mkdir -p '{}' && cd '{}'", par, par).command_style(),
+                        format!("jsmk new {}", child.display()).command_style()
+                )
+            }
             _ => verbose_wrapper!(),
         }
     }
