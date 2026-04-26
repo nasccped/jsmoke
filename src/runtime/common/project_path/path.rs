@@ -11,6 +11,19 @@ impl ProjectPath {
     pub fn get_path(&self) -> &Path {
         &self.0
     }
+
+    /// Generates a [`ProjectPath`] result over an optional string. Otherwise, uses the
+    /// [`Artifact`] fallback.
+    pub fn from_path_or_artifact(
+        path: Option<String>,
+        artifact: &Artifact,
+    ) -> Result<Self, ProjectPathError> {
+        if let Some(p) = path {
+            Self::try_from(p.as_str())
+        } else {
+            Ok(Self::from(artifact))
+        }
+    }
 }
 
 impl Display for ProjectPath {
