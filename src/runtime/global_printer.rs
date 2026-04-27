@@ -25,17 +25,17 @@ impl GlobalPrinter {
     ///
     /// **Note** that this function doesn't decides where to print (stderr/stdout). Use
     /// [`GlobalPrinter::set_stderr`] before printing if necessary.
-    pub fn print_failure<F: NotifyFailure>(&self, fail: F) {
+    pub fn print_failure(&self, fail: &dyn NotifyFailure) {
         self.private_print(fail.get_fail_message());
     }
 
     /// Prints the success message based on `success` item.
-    pub fn print_success<S: NotifySuccess>(&self, success: S) {
+    pub fn print_success(&self, success: &dyn NotifySuccess) {
         self.private_print(success.get_success_message());
     }
 
     /// Prints the warning message based on `warning` item.
-    pub fn print_warning<W: NotifyWarning>(&self, warning: W) {
+    pub fn print_warning(&self, warning: &dyn NotifyWarning) {
         self.private_print(warning.get_warning_message());
     }
 
@@ -43,9 +43,9 @@ impl GlobalPrinter {
     ///
     /// **Note** that this function doesn't decides where to print (stderr/stdout). Use
     /// [`GlobalPrinter::set_stderr`] before printing if necessary.
-    pub fn print_verbose<V: Verbose>(&self, item: V) {
+    pub fn print_verbose(&self, item: &dyn Verbose) {
         if let Some(message) = item.as_verbose().get_message() {
-            self.private_print("\n");
+            self.private_print(""); // blank line
             self.private_print(message);
         }
     }
