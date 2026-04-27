@@ -4,13 +4,16 @@ use crate::utils::{
 };
 use std::process::ExitCode;
 
+/// Type alias for runtime possible results.
+pub type RuntimeOutput = Result<Box<dyn SuccessConstraint>, Box<dyn FailureConstraint>>;
+
 /// Utilities for [`RuntimeOutput`] type.
 pub trait RuntimeOutputUtils {
     /// Get [`ExitCode`] from `self` item.
     fn get_exit_code(&self) -> ExitCode;
 
-    /// Get [`Verbose`] as boxed item from `self`.
-    fn as_boxed_verbose(&self) -> Box<dyn Verbose>;
+    /// Get [`Verbose`] item as `&dyn`.
+    fn as_verbose(&self) -> &dyn Verbose;
 }
 
 impl RuntimeOutputUtils for RuntimeOutput {
@@ -22,22 +25,27 @@ impl RuntimeOutputUtils for RuntimeOutput {
         }
     }
 
-    fn as_boxed_verbose(&self) -> Box<dyn Verbose> {
+    fn as_verbose(&self) -> &dyn Verbose {
         match self {
-            Ok(success) => success.into(),
-            Err(fail) => fail.into(),
+            Ok(success) => success.as_ref(),
+            Err(fail) => fail.as_ref(),
         }
     }
 }
 
-/// Type alias for runtime possible results.
-pub type RuntimeOutput = Result<Box<dyn SuccessConstraint>, Box<dyn FailureConstraint>>;
-
 /// Constraint for successfully result variants.
-pub trait SuccessConstraint: NotifySuccess + Verbose {}
+pub trait SuccessConstraint: Verbose + NotifySuccess {}
 
 /// Constraint for failure result variants.
-pub trait FailureConstraint: NotifyFailure + Verbose {}
+pub trait FailureConstraint: Verbose + NotifyFailure {}
+
+type BoxedFailure = Box<dyn FailureConstraint + 'static>;
+
+impl<T: FailureConstraint + 'static> From<T> for BoxedFailure {
+    fn from(value: T) -> Self {
+        Box::new(value) as BoxedFailure
+    }
+}
 
 // auto impl
 impl<T: NotifySuccess + Verbose> SuccessConstraint for T {}
