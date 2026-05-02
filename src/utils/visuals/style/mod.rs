@@ -11,6 +11,7 @@ mod quotes;
 mod suggestion;
 mod term;
 mod ticks;
+mod weak;
 
 pub use command::CommandStyle;
 pub use list::ItemList;
@@ -18,3 +19,4 @@ pub use number::NumberStyle;
 pub use path::PathStyle;
 pub use suggestion::SuggestionStyle;
 pub use term::TermStyle;
+pub use weak::WeakStyle;
