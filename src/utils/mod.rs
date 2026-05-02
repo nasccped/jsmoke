@@ -8,6 +8,8 @@ pub mod visuals;
 
 mod inner;
 mod surely_unwrap;
+mod trim_and_box;
 
 pub use inner::Inner;
 pub use surely_unwrap::SurelyUnwrap;
+pub use trim_and_box::TrimAndBox;
