@@ -2,7 +2,6 @@
 //!
 //! A module that provides useful data structures along the runtime.
 pub mod notifiers;
-pub mod regex;
 // pub mod verbose;
 // pub mod visuals;
 
