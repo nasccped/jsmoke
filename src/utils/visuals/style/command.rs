@@ -1,5 +1,5 @@
 use super::{dollar::DollarIt, ticks::TickIt};
-use crate::utils::{Inner, SurelyUnwrap};
+use crate::utils::SurelyUnwrap;
 use colored::{ColoredString, Colorize};
 use regex::{Captures, Match, Regex};
 use std::sync::LazyLock;
@@ -120,8 +120,8 @@ enum Token<'a> {
     Other(&'a str),
 }
 
-impl<'h> Inner<str> for Token<'h> {
-    fn inner(&self) -> &'h str {
+impl<'a> Into<&'a str> for Token<'a> {
+    fn into(self) -> &'a str {
         match self {
             Self::Command(c) => c,
             Self::Subcommand(s) => s,
@@ -199,7 +199,7 @@ impl<'h> Token<'h> {
             Self::String(s) => s.cyan(),
             Self::Other(o) => o.bright_purple(),
             Self::Number(n) => n.yellow(),
-            Self::AndOper | Self::OrOper => self.inner().bright_white(),
+            Self::AndOper | Self::OrOper => Token::into(self).bright_white(),
         }
     }
 }
