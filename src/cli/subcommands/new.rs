@@ -9,7 +9,7 @@ use std::path::PathBuf;
 #[derive(Args, Debug)]
 pub struct New {
     /// The artifact of the project being created.
-    pub artifact: ArtifactWrapper,
+    pub artifact: Option<ArtifactWrapper>,
     /// Where to place the new project (same as `artifact` by default).
     #[arg(long, short = 'p')]
     pub path: Option<PathBuf>,
