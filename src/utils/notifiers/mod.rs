@@ -4,13 +4,13 @@
 //! - `NotifySuccess` for successfully runtime.
 //! - `NotifyFailure` for failed runtime.
 //! - ...
-mod notify_failure;
-mod notify_success;
-mod notify_warning;
+mod failure_notifiable;
+mod output_notifier;
+mod success_notifiable;
 mod tags;
+mod warning_notifiable;
 
-use tags::Tags;
-
-pub use notify_failure::NotifyFailure;
-pub use notify_success::NotifySuccess;
-pub use notify_warning::NotifyWarning;
+pub use failure_notifiable::FailureNotifiable;
+pub use output_notifier::OutputNotifier;
+pub use success_notifiable::SuccessNotifiable;
+pub use warning_notifiable::WarningNotifiable;
