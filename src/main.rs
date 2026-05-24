@@ -1,12 +1,12 @@
 mod cli;
 mod exit;
-mod runtime;
+mod shared_models;
 mod utils;
 
 use clap::Parser;
+use std::process::ExitCode;
 
 fn main() {
-    let app = cli::App::parse();
-    let output = runtime::run(app);
-    exit::with_code(output);
+    let _app = cli::App::parse();
+    exit::with_code(ExitCode::SUCCESS);
 }
