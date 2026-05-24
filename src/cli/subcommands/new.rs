@@ -1,16 +1,18 @@
 //! # New subcommand
 //!
 //! Field definition for the new subcommand.
+use crate::shared_models::artifact_wrapper::ArtifactWrapper;
 use clap::Args;
+use std::path::PathBuf;
 
 /// Subcommand responsible for create new projects within a new directory.
 #[derive(Args, Debug)]
 pub struct New {
-    /// The artifact of the project being created (auto fix to `artifactId`).
-    pub artifact: Option<String>,
+    /// The artifact of the project being created.
+    pub artifact: ArtifactWrapper,
     /// Where to place the new project (same as `artifact` by default).
     #[arg(long, short = 'p')]
-    pub path: Option<String>,
+    pub path: Option<PathBuf>,
     /// Lock the project to the version regex.
     #[arg(long = "lock", short = 'l', value_name = "(>= | =)VERSION")]
     pub lock_version: Option<String>,
