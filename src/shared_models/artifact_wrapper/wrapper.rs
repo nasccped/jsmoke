@@ -92,4 +92,19 @@ mod test {
                 );
             });
     }
+
+    #[test]
+    fn fixed() {
+        ["require-fixing", "with10-numbers"]
+            .into_iter()
+            .for_each(|artifact| {
+                let result = ArtifactWrapper::from_str(artifact).surely_unwrap();
+                assert!(
+                    matches!(result, ArtifactWrapper::Fixed { .. }),
+                    "'{}' was expected to return `ArtifactWrapper::Fixed` but returned {:?}",
+                    artifact,
+                    result
+                )
+            });
+    }
 }
