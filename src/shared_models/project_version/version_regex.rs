@@ -156,7 +156,7 @@ impl SingleKindRegex {
 }
 
 /// [`Regex`] for `single kind` haystack matching.
-static SINGLE_KIND_REGEX: LazyLock<SingleKindRegex> = LazyLock::new(|| SingleKindRegex::new());
+static SINGLE_KIND_REGEX: LazyLock<SingleKindRegex> = LazyLock::new(SingleKindRegex::new);
 
 /// [`Regex`] for `range kind` haystack matching.
 static RANGE_KIND_REGEX: LazyLock<RangeKindRegex> = LazyLock::new(|| {
