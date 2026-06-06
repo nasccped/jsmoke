@@ -9,8 +9,8 @@ use std::{
 /// Different available constraint for versions.
 enum ConstraintKind {
     /// Means `single version` kind constraints, like:
-    /// - `=...`  => strictly equals to `...`
-    /// - `>=...` => equals or greater than `...`
+    /// - `=<pattern>`  => strictly equals to `<pattern>`
+    /// - `>=<pattern>` => equals or greater than `<pattern>`
     Single,
     /// Means `range version` kind constraints, like:
     /// - `{left}..{right}`  => any version that's from `{left}` until `{N}` when `N` < `{right}`
@@ -20,7 +20,9 @@ enum ConstraintKind {
     Range,
 }
 
-/// [`Regex`] specific for constraint kind matching.
+/// [`Regex`] struct specific for constraint kind matching. It can be turned into a valid [`Regex`]
+/// string since it implements [`Display`]. The [`String`] output is based on the inner
+/// [`ConstraintKind`] variant.
 struct ConstraintRegex(ConstraintKind);
 
 impl Display for ConstraintRegex {
@@ -37,16 +39,49 @@ impl Display for ConstraintRegex {
     }
 }
 
+// NOTE: allow `const` when `static` was expected since Rust doesn't allow `static` items at `impl`
+// blocks.
+#[allow(clippy::declare_interior_mutable_const)]
 impl ConstraintRegex {
+    /// The group name for [`ConstraintRegex`].
     const GROUP_NAME: &str = "constraint";
 
     /// [`Regex`] string for single kind constraints.
-    const SINGLE_KIND_REGEX_STR: LazyLock<String> =
-        LazyLock::new(|| format!(r#"(?<{}>[^\d\.\s]*)?"#, Self::GROUP_NAME));
+    const SINGLE_KIND_REGEX_STR: LazyLock<String> = LazyLock::new(|| {
+        use super::version::SingleKind;
+        let signs = Self::into_sign_string([
+            SingleKind::STRICTLY_EQUALS_SIGN,
+            SingleKind::EQUALS_OR_GREATER_SIGN,
+        ]);
+        format!(r#"(?<{}>{})?"#, Self::GROUP_NAME, signs)
+    });
 
     /// [`Regex`] string for range kind constraints.
-    const RANGE_KIND_REGEX_STR: LazyLock<String> =
-        LazyLock::new(|| format!(r#"(?<{}>[^\d\s]{{2,}})"#, Self::GROUP_NAME));
+    const RANGE_KIND_REGEX_STR: LazyLock<String> = LazyLock::new(|| {
+        use super::version::RangeKind;
+        let signs = Self::into_sign_string([RangeKind::INCLUSIVE_SIGN, RangeKind::EXCLUSIVE_SIGN]);
+        format!(r#"(?<{}>{})"#, Self::GROUP_NAME, signs)
+    });
+
+    /// Converts the provided items into a single regex string: `['a', 'b', 'c', ...]` =>
+    /// `"a|b|c|..."`.
+    fn into_sign_string<T: IntoIterator<Item = &'static str>>(items: T) -> String {
+        items
+            .into_iter()
+            .map(|item| {
+                item.chars()
+                    .map(|c| {
+                        if c == '.' {
+                            format!("\\{}", c)
+                        } else {
+                            c.to_string()
+                        }
+                    })
+                    .collect::<String>()
+            })
+            .collect::<Vec<_>>()
+            .join("|")
+    }
 
     /// Builds a new [`ConstraintRegex`] based on a [`ConstraintKind`].
     fn new(kind: ConstraintKind) -> ConstraintRegex {
@@ -64,10 +99,11 @@ enum VersionKind {
     RangeRight,
 }
 
-/// [`Regex`] specific for version matching.
+/// [`Regex`] struct specific for version kind matching. It can be turned into a valid [`Regex`]
+/// string since it implements [`Display`]. The [`String`] output is based on the inner
+/// [`VersionKind`] variant.
 ///
-/// This struct uses `Private` prefix to avoid duplicate conflict with [`VersionRegex`] public
-/// item.
+/// Note: Using `Private` naming prefix to avoid conflict with [`VersionRegex`] which is public.
 struct PrivateVersionRegex(VersionKind);
 
 impl Display for PrivateVersionRegex {
@@ -85,12 +121,26 @@ impl Display for PrivateVersionRegex {
     }
 }
 
+// NOTE: allow `const` when `static` was expected since Rust doesn't allow `static` items at `impl`
+// blocks.
+#[allow(clippy::declare_interior_mutable_const)]
 impl PrivateVersionRegex {
+    /// Group name when the used kind is [`VersionKind::Single`].
     const SINGLE_GROUP_NAME: &str = "version";
+
+    /// Group name when the used kind is [`VersionKind::RangeLeft`].
     const LEFT_GROUP_NAME: &str = "leftversion";
+
+    /// Group name when the used kind is [`VersionKind::RangeRight`].
     const RIGHT_GROUP_NAME: &str = "rightversion";
+
+    /// Group name for [`VersionKind`] independent (targeting `major` group: `<pattern<major><rest...>`).
     const MAJOR_GROUP_NAME: &str = "major";
+
+    /// Group name for [`VersionKind`] independent (targeting `minor` group: `<pattern<...><minor><rest...>`).
     const MINOR_GROUP_NAME: &str = "minor";
+
+    /// Group name for [`VersionKind`] independent (targeting `patch` group: `<pattern<...><patch>`).
     const PATCH_GROUP_NAME: &str = "patch";
 
     /// [`Regex`] string for single kind [`PrivateVersionRegex`]. It strictly match and group
@@ -140,25 +190,18 @@ static RANGE_KIND_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 
 /// Common trait for constraint unwrapping (polymorphism between [`SingleVersionCaptures`] and
 /// [`RangeVersionCaptures`]).
-trait ConstraintGetter {
-    /// Get the constraint string.
-    fn get_constraint(&self) -> Result<Option<&str>, ()>;
-}
-
-impl<'a> ConstraintGetter for SingleVersionCaptures<'a> {
-    fn get_constraint(&self) -> Result<Option<&str>, ()> {
-        Ok(self.name(ConstraintRegex::GROUP_NAME).map(|m| m.as_str()))
+pub trait ConstraintGetter<'a>: Deref<Target = Captures<'a>> {
+    /// Get the constraint string from the [`Captures`] wrapper. It returns an [`Option`] since
+    /// [`SingleVersionCaptures`] can hold (or not) a `constraint` specifier.
+    fn get_constraint(&'a self) -> Option<&'a str> {
+        self.name(ConstraintRegex::GROUP_NAME).map(|m| m.as_str())
     }
 }
 
-impl<'a> ConstraintGetter for RangeVersionCaptures<'a> {
-    fn get_constraint(&self) -> Result<Option<&str>, ()> {
-        self.name(ConstraintRegex::GROUP_NAME)
-            .ok_or(())
-            .map(|m| Some(m.as_str()))
-    }
-}
+impl<'a> ConstraintGetter<'a> for SingleVersionCaptures<'a> {}
+impl<'a> ConstraintGetter<'a> for RangeVersionCaptures<'a> {}
 
+/// [`Captures`] wrapper for `single version` kind patterns.
 #[derive(Debug)]
 pub struct SingleVersionCaptures<'a>(Captures<'a>);
 
@@ -169,11 +212,9 @@ impl<'a> Deref for SingleVersionCaptures<'a> {
     }
 }
 
+/// [`Captures`] wrapper for `range version` kind patterns.
 #[derive(Debug)]
 pub struct RangeVersionCaptures<'a>(Captures<'a>);
-
-#[derive(Debug)]
-pub struct VersionCaptures<'a>(Captures<'a>);
 
 impl<'a> Deref for RangeVersionCaptures<'a> {
     type Target = Captures<'a>;
@@ -182,158 +223,113 @@ impl<'a> Deref for RangeVersionCaptures<'a> {
     }
 }
 
+/// Generic captures for version matching. Usefull for kind independent matching and group (works
+/// for [`VersionKind::Single`], [`VersionKind::RangeLeft`] and [`VersionKind::RangeRight`]) and
+/// `constraint` excluding.
+#[derive(Debug)]
+pub struct VersionCaptures<'a>(Captures<'a>);
+
 /// [`Regex`] utilities for [`super::ProjectVersion`].
 pub struct VersionRegex;
 
 impl VersionRegex {
-    /// Returns a wrapper for [`PrivateVersionRegex`] ([`SingleVersionCaptures`]) captures (if it's
-    /// [`VersionKind::Single`]), otherwise, returns [`None`].
+    /// Returns a [`SingleVersionCaptures`] if it matches with [`ConstraintKind::Single`] +
+    /// [`VersionKind::Single`] pattern rules, otherwise returns [`None`].
     pub fn may_single<'a>(haystack: &'a str) -> Option<SingleVersionCaptures<'a>> {
         SINGLE_KIND_REGEX
             .captures(haystack)
             .map(SingleVersionCaptures)
     }
 
-    /// Returns a wrapper for [`PrivateVersionRegex`] (both sides of [`RangeVersionCaptures`] -
-    /// [`VersionKind::RangeLeft`] and [`VersionKind::RangeRight`]) captures, otherwise, returns
+    /// Returns a [`RangeVersionCaptures`] if it matches with [`VersionKind::RangeLeft`] +
+    /// ([`ConstraintKind::Range`]) + [`VersionKind::RangeRight`] pattern rules, otherwise returns
     /// [`None`].
     pub fn may_range<'a>(haystack: &'a str) -> Option<RangeVersionCaptures<'a>> {
         RANGE_KIND_REGEX
             .captures(haystack)
             .map(RangeVersionCaptures)
     }
-
-    #[allow(private_bounds)]
-    pub fn get_constraint<T: ConstraintGetter>(item: &T) -> Result<Option<&str>, ()> {
-        item.get_constraint()
-    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::{
-        any::type_name,
-        fmt::{Debug, Display},
-    };
-
-    const SINGLE_INPUTS: [&str; 13] = [
-        "1",
-        "1.2",
-        "1.2.3",
-        "12.34.56",
-        "1.23.456",
-        "=1",
-        "=1.2",
-        "=1.2.3",
-        "=12.34.56",
-        "=1.23.456",
-        "= 1",
-        ">=1.2.3",
-        ">= 1.2.3",
-    ];
-
-    const RANGE_ALSO_INCLUSIVE_INPUTS: [(&str, bool); 13] = [
-        ("1..2", false),
-        ("1 ..2", false),
-        ("1.. 2", false),
-        ("1 .. 2", false),
-        ("12 .. 34", false),
-        ("12.34 .. 56.78", false),
-        ("12.34 .. 5", false),
-        ("1 .. 5.6.7", false),
-        ("1..=2", true),
-        ("1 ..=2", true),
-        ("1..= 2", true),
-        ("1 ..= 2", true),
-        ("1.2 ..= 2.3", true),
-    ];
-
-    /// Assert if a value is [`Some`], otherwise panics with a template + an extra message.
-    fn assert_is_some<T>(
-        init_input: impl Display,
-        value: Option<T>,
-        message: Option<impl Display>,
-    ) {
-        assert!(
-            value.is_some(),
-            "`{}` was expected to result in `Some({})` but `None` was returned.{}",
-            init_input,
-            type_name::<T>(),
-            message
-                .map(|mes| format!("\n\nextra message:\n{}", mes))
-                .unwrap_or_default()
-        )
-    }
-
-    /// Assert if a value is [`None`], otherwise panics with a template + an extra message.
-    fn assert_is_none<T: Debug>(
-        init_input: impl Display,
-        value: Option<T>,
-        message: Option<impl Display>,
-    ) {
-        assert!(
-            value.is_none(),
-            "`{}` was expected to result in `None` but `Some({:?})` was returned.{}",
-            init_input,
-            value,
-            message
-                .map(|mes| format!("\n\nextra message:\n{}", mes))
-                .unwrap_or_default()
-        )
-    }
 
     #[test]
-    fn is_single_kind() {
-        SINGLE_INPUTS.into_iter().for_each(|input| {
+    fn single() {
+        [
+            "1",
+            "1.2",
+            "1.2.3",
+            "12.34.56",
+            "1.23.456",
+            "=1",
+            "=1.2",
+            "=1.2.3",
+            "=12.34.56",
+            "=1.23.456",
+            "= 1",
+            ">=1.2.3",
+            ">= 1.2.3",
+        ]
+        .into_iter()
+        .for_each(|input| {
             let (single, range) = (
                 VersionRegex::may_single(input),
                 VersionRegex::may_range(input),
             );
-            assert_is_some(
+            assert!(
+                single.is_some(),
+                "Expecting `Some` for '{}' but got `None`.\nRegex: {}",
                 input,
-                single,
-                Some(format!(
-                    "failed for regex: `{}`",
-                    SINGLE_KIND_REGEX.as_str()
-                )),
+                SINGLE_KIND_REGEX.as_str()
             );
-            assert_is_none(
+            assert!(
+                range.as_deref().is_none(),
+                "Expecting `None` for '{}' but got `{:?}`.\nRegex: {}",
                 input,
                 range,
-                Some(format!(
-                    "failed for regex: `{}`",
-                    SINGLE_KIND_REGEX.as_str()
-                )),
+                RANGE_KIND_REGEX.as_str()
             );
         });
     }
 
     #[test]
-    fn is_range_kind() {
-        RANGE_ALSO_INCLUSIVE_INPUTS
-            .into_iter()
-            .for_each(|(input, _)| {
-                let (single, range) = (
-                    VersionRegex::may_single(input),
-                    VersionRegex::may_range(input),
-                );
-                assert_is_none(
-                    input,
-                    single,
-                    Some(format!(
-                        "failed for regex: `{}`",
-                        SINGLE_KIND_REGEX.as_str()
-                    )),
-                );
-                assert_is_some(
-                    input,
-                    range,
-                    Some(format!(
-                        "failed for regex: `{}`",
-                        SINGLE_KIND_REGEX.as_str()
-                    )),
-                );
-            });
+    fn range() {
+        [
+            "1..2",
+            "1 ..2",
+            "1.. 2",
+            "1 .. 2",
+            "12 .. 34",
+            "12.34 .. 56.78",
+            "12.34 .. 5",
+            "1 .. 5.6.7",
+            "1..=2",
+            "1 ..=2",
+            "1..= 2",
+            "1 ..= 2",
+            "1.2 ..= 2.3",
+        ]
+        .into_iter()
+        .for_each(|input| {
+            let (single, range) = (
+                VersionRegex::may_single(input),
+                VersionRegex::may_range(input),
+            );
+            assert!(
+                range.is_some(),
+                "Expecting `Some` for '{}' but got `None`.\nRegex: {}",
+                input,
+                RANGE_KIND_REGEX.as_str()
+            );
+            assert!(
+                single.as_deref().is_none(),
+                "Expecting `None` for '{}' but got `{:?}`.\nRegex: {}",
+                input,
+                single,
+                SINGLE_KIND_REGEX.as_str()
+            );
+        });
     }
 }
