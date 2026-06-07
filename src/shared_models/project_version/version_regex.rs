@@ -134,13 +134,16 @@ impl PrivateVersionRegex {
     /// Group name when the used kind is [`VersionKind::RangeRight`].
     const RIGHT_GROUP_NAME: &str = "rightversion";
 
-    /// Group name for [`VersionKind`] independent (targeting `major` group: `<pattern<major><rest...>`).
+    /// Group name for [`VersionKind`] independent (targeting `major` group:
+    /// `<pattern<major><rest...>`).
     const MAJOR_GROUP_NAME: &str = "major";
 
-    /// Group name for [`VersionKind`] independent (targeting `minor` group: `<pattern<...><minor><rest...>`).
+    /// Group name for [`VersionKind`] independent (targeting `minor` group:
+    /// `<pattern<...><minor><rest...>`).
     const MINOR_GROUP_NAME: &str = "minor";
 
-    /// Group name for [`VersionKind`] independent (targeting `patch` group: `<pattern<...><patch>`).
+    /// Group name for [`VersionKind`] independent (targeting `patch` group:
+    /// `<pattern<...><patch>`).
     const PATCH_GROUP_NAME: &str = "patch";
 
     /// [`Regex`] string for single kind [`PrivateVersionRegex`]. It strictly match and group
@@ -188,6 +191,13 @@ static RANGE_KIND_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(&format!("^{}\\s*{}\\s*{}$", left, constraint, right)).surely_unwrap()
 });
 
+/// [`Regex`] for `kind` independent match/grouping (excludes constraint). Used to build
+/// [`VersionCaptures`].
+static ONLY_VERSION_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    let version = PrivateVersionRegex::new(VersionKind::Single);
+    Regex::new(&format!("^{}$", version)).surely_unwrap()
+});
+
 /// Common trait for constraint unwrapping (polymorphism between [`SingleVersionCaptures`] and
 /// [`RangeVersionCaptures`]).
 pub trait ConstraintGetter<'a>: Deref<Target = Captures<'a>> {
@@ -212,6 +222,19 @@ impl<'a> Deref for SingleVersionCaptures<'a> {
     }
 }
 
+impl<'a> SingleVersionCaptures<'a> {
+    /// Returns the [`VersionCaptures`] based on the `self` inner captures.
+    pub fn get_version(&self) -> VersionCaptures<'a> {
+        // all the code bellow can be surely unwrapped since the `self` captures is built under a
+        // surely matching regex.
+        let s = self
+            .name(PrivateVersionRegex::SINGLE_GROUP_NAME)
+            .map(|m| m.as_str())
+            .surely_unwrap();
+        VersionCaptures(ONLY_VERSION_REGEX.captures(s).surely_unwrap())
+    }
+}
+
 /// [`Captures`] wrapper for `range version` kind patterns.
 #[derive(Debug)]
 pub struct RangeVersionCaptures<'a>(Captures<'a>);
@@ -223,11 +246,72 @@ impl<'a> Deref for RangeVersionCaptures<'a> {
     }
 }
 
+impl<'a> RangeVersionCaptures<'a> {
+    /// Returns the left side [`VersionCaptures`].
+    fn get_left(&self) -> VersionCaptures<'a> {
+        let s = self
+            .name(PrivateVersionRegex::LEFT_GROUP_NAME)
+            .map(|m| m.as_str())
+            .surely_unwrap();
+        VersionCaptures(ONLY_VERSION_REGEX.captures(s).surely_unwrap())
+    }
+
+    /// Returns the right side [`VersionCaptures`].
+    fn get_right(&self) -> VersionCaptures<'a> {
+        let s = self
+            .name(PrivateVersionRegex::RIGHT_GROUP_NAME)
+            .map(|m| m.as_str())
+            .surely_unwrap();
+        VersionCaptures(ONLY_VERSION_REGEX.captures(s).surely_unwrap())
+    }
+}
+
 /// Generic captures for version matching. Usefull for kind independent matching and group (works
 /// for [`VersionKind::Single`], [`VersionKind::RangeLeft`] and [`VersionKind::RangeRight`]) and
 /// `constraint` excluding.
 #[derive(Debug)]
 pub struct VersionCaptures<'a>(Captures<'a>);
+
+impl<'a> Deref for VersionCaptures<'a> {
+    type Target = Captures<'a>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<'a> VersionCaptures<'a> {
+    /// Returns the major field from a version pattern:
+    /// - `1.2.3` => `1`
+    /// - `12.43` => `12`
+    /// - `...`
+    ///
+    /// This function will panic only if there's no `major` group matching (which isn't expected
+    /// since it's build by version regex basic requirements).
+    pub fn get_major(&self) -> &str {
+        self.name(PrivateVersionRegex::MAJOR_GROUP_NAME)
+            .map(|m| m.as_str())
+            .surely_unwrap()
+    }
+
+    /// Returns the minor field from a version pattern:
+    /// - `1.2.3` => `Some(2)`
+    /// - `12.34.56` => `Some(34)`
+    /// - `1` => `None`
+    pub fn get_minor(&self) -> Option<&str> {
+        self.name(PrivateVersionRegex::MINOR_GROUP_NAME)
+            .map(|m| m.as_str())
+    }
+
+    /// Returns the patch field from a version pattern:
+    /// - `1.2.3` => `Some(3)`
+    /// - `12.34.56` => `Some(56)`
+    /// - `1` => `None`
+    /// - `1.2` => `None`
+    pub fn get_patch(&self) -> Option<&str> {
+        self.name(PrivateVersionRegex::PATCH_GROUP_NAME)
+            .map(|m| m.as_str())
+    }
+}
 
 /// [`Regex`] utilities for [`super::ProjectVersion`].
 pub struct VersionRegex;
@@ -254,82 +338,158 @@ impl VersionRegex {
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::any::{Any, type_name};
 
-    #[test]
-    fn single() {
-        [
-            "1",
-            "1.2",
-            "1.2.3",
-            "12.34.56",
-            "1.23.456",
-            "=1",
-            "=1.2",
-            "=1.2.3",
-            "=12.34.56",
-            "=1.23.456",
-            "= 1",
-            ">=1.2.3",
-            ">= 1.2.3",
-        ]
-        .into_iter()
-        .for_each(|input| {
-            let (single, range) = (
-                VersionRegex::may_single(input),
-                VersionRegex::may_range(input),
-            );
-            assert!(
-                single.is_some(),
-                "Expecting `Some` for '{}' but got `None`.\nRegex: {}",
+    /// Panics if provided value isn't [`Some`] variant.
+    fn sure_some<T: Any>(input: impl Display, value: Option<T>) -> T {
+        value.unwrap_or_else(|| {
+            panic!(
+                "'{}' was expected to return `Some({})`",
                 input,
-                SINGLE_KIND_REGEX.as_str()
-            );
-            assert!(
-                range.as_deref().is_none(),
-                "Expecting `None` for '{}' but got `{:?}`.\nRegex: {}",
-                input,
-                range,
-                RANGE_KIND_REGEX.as_str()
-            );
-        });
+                type_name::<T>()
+            )
+        })
     }
 
     #[test]
-    fn range() {
+    fn constraint_assertion() {
+        let none_assertion = |input: &'static str| {
+            let captures = sure_some(input, VersionRegex::may_single(input));
+            assert_eq!(captures.get_constraint(), None);
+        };
+        ["1", "1.2", "1.2.3", " 1", " 1.2", " 1.2.3"]
+            .into_iter()
+            .for_each(none_assertion);
+        let strictly_equals_assertion = |input: &'static str| {
+            let captures = sure_some(input, VersionRegex::may_single(input));
+            assert_eq!(captures.get_constraint(), Some("="));
+        };
+        ["=1", "=1.2", "=1.2.3", "= 1", "= 2.3", "= 2.3.4"]
+            .into_iter()
+            .for_each(strictly_equals_assertion);
+        let equals_or_greater_assertion = |input: &'static str| {
+            let captures = sure_some(input, VersionRegex::may_single(input));
+            assert_eq!(captures.get_constraint(), Some(">="));
+        };
+        [">=1", ">=1.2", ">=1.2.3", ">= 1", ">= 2.3", ">= 2.3.4"]
+            .into_iter()
+            .for_each(equals_or_greater_assertion);
+        let exclusive_assertion = |input: &'static str| {
+            let captures = sure_some(input, VersionRegex::may_range(input));
+            assert_eq!(captures.get_constraint(), Some(".."));
+        };
         [
             "1..2",
             "1 ..2",
             "1.. 2",
             "1 .. 2",
-            "12 .. 34",
-            "12.34 .. 56.78",
-            "12.34 .. 5",
-            "1 .. 5.6.7",
+            "1.2..3.4",
+            "1.2 ..3.4",
+            "1.2.. 3.4",
+            "1.2 .. 3.4",
+        ]
+        .into_iter()
+        .for_each(exclusive_assertion);
+        let inclusive_assertion = |input: &'static str| {
+            let captures = sure_some(input, VersionRegex::may_range(input));
+            assert_eq!(captures.get_constraint(), Some("..="));
+        };
+        [
             "1..=2",
             "1 ..=2",
             "1..= 2",
             "1 ..= 2",
-            "1.2 ..= 2.3",
+            "1.2..=3.4",
+            "1.2 ..=3.4",
+            "1.2..= 3.4",
+            "1.2 ..= 3.4",
         ]
         .into_iter()
-        .for_each(|input| {
-            let (single, range) = (
-                VersionRegex::may_single(input),
-                VersionRegex::may_range(input),
-            );
-            assert!(
-                range.is_some(),
-                "Expecting `Some` for '{}' but got `None`.\nRegex: {}",
-                input,
-                RANGE_KIND_REGEX.as_str()
-            );
-            assert!(
-                single.as_deref().is_none(),
-                "Expecting `None` for '{}' but got `{:?}`.\nRegex: {}",
-                input,
-                single,
-                SINGLE_KIND_REGEX.as_str()
-            );
+        .for_each(inclusive_assertion);
+    }
+
+    #[test]
+    fn single_assertion() {
+        [
+            ("1", ("1", None, None)),
+            ("1.2", ("1", Some("2"), None)),
+            ("1.2.3", ("1", Some("2"), Some("3"))),
+            ("12.34.56", ("12", Some("34"), Some("56"))),
+            ("1.23.456", ("1", Some("23"), Some("456"))),
+            ("=1", ("1", None, None)),
+            ("=1.2", ("1", Some("2"), None)),
+            ("=1.2.3", ("1", Some("2"), Some("3"))),
+            ("=12.34.56", ("12", Some("34"), Some("56"))),
+            ("=1.23.456", ("1", Some("23"), Some("456"))),
+            ("= 1", ("1", None, None)),
+            (">=1.2.3", ("1", Some("2"), Some("3"))),
+            (">= 1.2.3", ("1", Some("2"), Some("3"))),
+        ]
+        .into_iter()
+        .for_each(|(input, (exp_major, exp_minor, exp_patch))| {
+            let single = VersionRegex::may_single(input).surely_unwrap();
+            if let Some(range) = VersionRegex::may_range(input) {
+                panic!(
+                    "`None` was expected for '{}' input but got `{:?}`",
+                    input, range
+                );
+            }
+            let assert_major = |version: &VersionCaptures<'_>| {
+                assert_eq!(
+                    version.get_major(),
+                    exp_major,
+                    "failed assertion for '{}'",
+                    input
+                )
+            };
+            let assert_minor = |version: &VersionCaptures<'_>| {
+                assert_eq!(
+                    version.get_minor(),
+                    exp_minor,
+                    "failed assertion for '{}'",
+                    input
+                )
+            };
+            let assert_patch = |version: &VersionCaptures<'_>| {
+                assert_eq!(
+                    version.get_patch(),
+                    exp_patch,
+                    "failed assertion for '{}'",
+                    input
+                )
+            };
+            let version = single.get_version();
+            assert_major(&version);
+            assert_minor(&version);
+            assert_patch(&version);
+        });
+    }
+
+    #[test]
+    fn range_assertion() {
+        [
+            ("1", "2"),
+            ("1 ", "2"),
+            ("1", " 2"),
+            ("1 ", " 2"),
+            ("12 ", " 34"),
+            ("12.34 ", " 56.78"),
+            ("12.34 ", " 5"),
+            ("1 ", " 5.6.7"),
+        ]
+        .into_iter()
+        .for_each(|(left, right)| {
+            let do_assertions = |captures: &RangeVersionCaptures<'_>| {
+                let (left_cap, right_cap) = (captures.get_left(), captures.get_right());
+                assert_eq!(left_cap.get_match().as_str(), left.trim());
+                assert_eq!(right_cap.get_match().as_str(), right.trim());
+            };
+            let exclusive_input = format!("{}..{}", left, right);
+            let captures = VersionRegex::may_range(&exclusive_input).surely_unwrap();
+            do_assertions(&captures);
+            let inclusive_input = format!("{}..={}", left, right);
+            let captures = VersionRegex::may_range(&inclusive_input).surely_unwrap();
+            do_assertions(&captures);
         });
     }
 }
