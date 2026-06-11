@@ -314,30 +314,50 @@ impl<'a> VersionCaptures<'a> {
 }
 
 /// [`Regex`] utilities for [`super::ProjectVersion`].
-pub struct VersionRegex;
+#[derive(Debug)]
+pub enum VersionRegex<'a> {
+    Single(SingleVersionCaptures<'a>),
+    Range(RangeVersionCaptures<'a>),
+}
 
-impl VersionRegex {
-    /// Returns a [`SingleVersionCaptures`] if it matches with [`ConstraintKind::Single`] +
-    /// [`VersionKind::Single`] pattern rules, otherwise returns [`None`].
-    pub fn may_single<'a>(haystack: &'a str) -> Option<SingleVersionCaptures<'a>> {
-        SINGLE_KIND_REGEX
-            .captures(haystack)
-            .map(SingleVersionCaptures)
-    }
+/// A type alias used within the [`VersionRegex::try_from`] function.
+///
+/// This type means `Tuple(a, b)`, where `a` is a function which tries to convert the provided
+/// [`str`] into a [`Captures`] and `b` is a function which tries to convert the provided
+/// [`Captures`] into a [`VersionRegex`].
+type PairAliasType<'a> = (
+    fn(&'a str) -> Option<Captures<'a>>,
+    fn(Captures<'a>) -> VersionRegex<'a>,
+);
 
-    /// Returns a [`RangeVersionCaptures`] if it matches with [`VersionKind::RangeLeft`] +
-    /// ([`ConstraintKind::Range`]) + [`VersionKind::RangeRight`] pattern rules, otherwise returns
-    /// [`None`].
-    pub fn may_range<'a>(haystack: &'a str) -> Option<RangeVersionCaptures<'a>> {
-        RANGE_KIND_REGEX
-            .captures(haystack)
-            .map(RangeVersionCaptures)
+impl<'a> TryFrom<&'a str> for VersionRegex<'a> {
+    type Error = &'a str;
+    fn try_from(value: &'a str) -> Result<Self, Self::Error> {
+        let pairs: [PairAliasType; 2] = [
+            (
+                |s: &'a str| SINGLE_KIND_REGEX.captures(s),
+                |c: Captures<'a>| Self::Single(SingleVersionCaptures(c)),
+            ),
+            (
+                |s: &'a str| RANGE_KIND_REGEX.captures(s),
+                |c: Captures<'a>| Self::Range(RangeVersionCaptures(c)),
+            ),
+        ];
+        for (capture_getter, mapper) in pairs {
+            if let Some(cap) = capture_getter(value) {
+                return Ok(mapper(cap));
+            }
+        }
+        Err(value)
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use super::{
+        super::version::{RangeKind, SingleKind},
+        *,
+    };
     use std::any::{Any, type_name};
 
     /// Panics if provided value isn't [`Some`] variant.
@@ -354,29 +374,59 @@ mod test {
     #[test]
     fn constraint_assertion() {
         let none_assertion = |input: &'static str| {
-            let captures = sure_some(input, VersionRegex::may_single(input));
+            let captures = match VersionRegex::try_from(input) {
+                Ok(VersionRegex::Single(single)) => single,
+                other => panic!(
+                    "{:?} was returned when `VersionRegex::Single` was expected",
+                    other
+                ),
+            };
             assert_eq!(captures.get_constraint(), None);
         };
         ["1", "1.2", "1.2.3", " 1", " 1.2", " 1.2.3"]
             .into_iter()
             .for_each(none_assertion);
         let strictly_equals_assertion = |input: &'static str| {
-            let captures = sure_some(input, VersionRegex::may_single(input));
-            assert_eq!(captures.get_constraint(), Some("="));
+            let captures = match VersionRegex::try_from(input) {
+                Ok(VersionRegex::Single(single)) => single,
+                other => panic!(
+                    "{:?} was returned when `VersionRegex::Single` was expected",
+                    other
+                ),
+            };
+            assert_eq!(
+                captures.get_constraint(),
+                Some(SingleKind::STRICTLY_EQUALS_SIGN)
+            );
         };
         ["=1", "=1.2", "=1.2.3", "= 1", "= 2.3", "= 2.3.4"]
             .into_iter()
             .for_each(strictly_equals_assertion);
         let equals_or_greater_assertion = |input: &'static str| {
-            let captures = sure_some(input, VersionRegex::may_single(input));
-            assert_eq!(captures.get_constraint(), Some(">="));
+            let captures = match VersionRegex::try_from(input) {
+                Ok(VersionRegex::Single(single)) => single,
+                other => panic!(
+                    "{:?} was returned when `VersionRegex::Single` was expected",
+                    other
+                ),
+            };
+            assert_eq!(
+                captures.get_constraint(),
+                Some(SingleKind::EQUALS_OR_GREATER_SIGN)
+            );
         };
         [">=1", ">=1.2", ">=1.2.3", ">= 1", ">= 2.3", ">= 2.3.4"]
             .into_iter()
             .for_each(equals_or_greater_assertion);
         let exclusive_assertion = |input: &'static str| {
-            let captures = sure_some(input, VersionRegex::may_range(input));
-            assert_eq!(captures.get_constraint(), Some(".."));
+            let captures = match VersionRegex::try_from(input) {
+                Ok(VersionRegex::Range(range)) => range,
+                other => panic!(
+                    "{:?} was returned when `VersionRegex::Range` was expected",
+                    other
+                ),
+            };
+            assert_eq!(captures.get_constraint(), Some(RangeKind::EXCLUSIVE_SIGN));
         };
         [
             "1..2",
@@ -391,8 +441,14 @@ mod test {
         .into_iter()
         .for_each(exclusive_assertion);
         let inclusive_assertion = |input: &'static str| {
-            let captures = sure_some(input, VersionRegex::may_range(input));
-            assert_eq!(captures.get_constraint(), Some("..="));
+            let captures = match VersionRegex::try_from(input) {
+                Ok(VersionRegex::Range(range)) => range,
+                other => panic!(
+                    "{:?} was returned when `VersionRegex::Range` was expected",
+                    other
+                ),
+            };
+            assert_eq!(captures.get_constraint(), Some(RangeKind::INCLUSIVE_SIGN));
         };
         [
             "1..=2",
@@ -427,13 +483,13 @@ mod test {
         ]
         .into_iter()
         .for_each(|(input, (exp_major, exp_minor, exp_patch))| {
-            let single = VersionRegex::may_single(input).surely_unwrap();
-            if let Some(range) = VersionRegex::may_range(input) {
-                panic!(
-                    "`None` was expected for '{}' input but got `{:?}`",
-                    input, range
-                );
-            }
+            let single = match VersionRegex::try_from(input) {
+                Ok(VersionRegex::Single(single)) => single,
+                other => panic!(
+                    "{:?} was returned when `VersionRegex::Single` was expected",
+                    other
+                ),
+            };
             let assert_major = |version: &VersionCaptures<'_>| {
                 assert_eq!(
                     version.get_major(),
@@ -485,10 +541,22 @@ mod test {
                 assert_eq!(right_cap.get_match().as_str(), right.trim());
             };
             let exclusive_input = format!("{}..{}", left, right);
-            let captures = VersionRegex::may_range(&exclusive_input).surely_unwrap();
+            let captures = match VersionRegex::try_from(exclusive_input.as_str()) {
+                Ok(VersionRegex::Range(range)) => range,
+                other => panic!(
+                    "{:?} was returned when `VersionRegex::Range` was expected",
+                    other
+                ),
+            };
             do_assertions(&captures);
             let inclusive_input = format!("{}..={}", left, right);
-            let captures = VersionRegex::may_range(&inclusive_input).surely_unwrap();
+            let captures = match VersionRegex::try_from(inclusive_input.as_str()) {
+                Ok(VersionRegex::Range(range)) => range,
+                other => panic!(
+                    "{:?} was returned when `VersionRegex::Range` was expected",
+                    other
+                ),
+            };
             do_assertions(&captures);
         });
     }
