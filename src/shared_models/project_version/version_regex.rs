@@ -248,7 +248,7 @@ impl<'a> Deref for RangeVersionCaptures<'a> {
 
 impl<'a> RangeVersionCaptures<'a> {
     /// Returns the left side [`VersionCaptures`].
-    fn get_left(&self) -> VersionCaptures<'a> {
+    pub fn get_left(&self) -> VersionCaptures<'a> {
         let s = self
             .name(PrivateVersionRegex::LEFT_GROUP_NAME)
             .map(|m| m.as_str())
@@ -257,7 +257,7 @@ impl<'a> RangeVersionCaptures<'a> {
     }
 
     /// Returns the right side [`VersionCaptures`].
-    fn get_right(&self) -> VersionCaptures<'a> {
+    pub fn get_right(&self) -> VersionCaptures<'a> {
         let s = self
             .name(PrivateVersionRegex::RIGHT_GROUP_NAME)
             .map(|m| m.as_str())
@@ -356,20 +356,8 @@ impl<'a> TryFrom<&'a str> for VersionRegex<'a> {
 mod test {
     use super::{
         super::version::{RangeKind, SingleKind},
-        *,
+        ConstraintGetter, RangeVersionCaptures, VersionCaptures, VersionRegex,
     };
-    use std::any::{Any, type_name};
-
-    /// Panics if provided value isn't [`Some`] variant.
-    fn sure_some<T: Any>(input: impl Display, value: Option<T>) -> T {
-        value.unwrap_or_else(|| {
-            panic!(
-                "'{}' was expected to return `Some({})`",
-                input,
-                type_name::<T>()
-            )
-        })
-    }
 
     #[test]
     fn constraint_assertion() {
