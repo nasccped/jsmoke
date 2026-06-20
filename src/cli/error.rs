@@ -75,7 +75,8 @@ impl From<ClapError> for AppParseFail {
             ErrorKind::MissingSubcommand => SureError::MissingSubcommand.into(),
             ErrorKind::DisplayVersion => ActionCall::VersionCall {
                 version: ActionCallMessage::String(value.render().to_string()),
-            }.into(),
+            }
+            .into(),
             ErrorKind::DisplayHelp => ActionCall::help_call_from_err(&value).into(),
             _ => SureError::MissingSubcommand.into(),
         }
