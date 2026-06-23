@@ -1,13 +1,10 @@
 //! # jsmoke utilities module
 //!
 //! A module that provides useful data structures along the runtime.
-pub mod notifier;
-mod verbose;
-// pub mod visuals;
-
 mod input_fix;
 mod may_from;
 mod surely_unwrap;
+mod verbose;
 
 pub use input_fix::InputFix;
 pub use may_from::MayFrom;
