@@ -5,6 +5,7 @@ mod input_fix;
 mod may_from;
 pub mod notifier;
 mod strings;
+pub mod styler;
 mod surely_unwrap;
 mod verbose;
 
