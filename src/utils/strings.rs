@@ -39,17 +39,18 @@ impl<T: Deref<Target = str>> StringUtils for T {
     }
 
     fn is_repetition_of(&self, pattern: &str) -> bool {
-        if !self.len().is_multiple_of(pattern.len()) {
-            return false;
-        }
-        let begins = (0..self.len()).step_by(pattern.len());
-        let ends = (pattern.len()..self.len()).step_by(pattern.len());
-        for (b, e) in begins.zip(ends) {
-            if &self[b..e] != pattern {
-                return false;
+        match (self.len(), pattern.len()) {
+            (1, 1) => self.deref() == pattern,
+            (s_len, p_len) if s_len.is_multiple_of(p_len) => {
+                let begins = (0..s_len).step_by(p_len);
+                let ends = (p_len..s_len).step_by(p_len);
+                begins.zip(ends).fold(
+                true,
+                |result, (b, e)| matches!((result, b, e), (true, b, e) if &self[b..e] == pattern),
+            )
             }
+            _ => false,
         }
-        true
     }
 }
 
@@ -76,8 +77,11 @@ mod tests {
 
     #[test]
     fn is_repetition_of() {
+        assert!("a".is_repetition_of("a"));
         assert!("aaa".is_repetition_of("a"));
+        assert!(!"a".is_repetition_of("b"));
         assert!("zipozipo".is_repetition_of("zipo"));
         assert!(!"aaa".is_repetition_of("aa"));
+        assert!(!"|".is_repetition_of("&"))
     }
 }
