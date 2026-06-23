@@ -3,6 +3,7 @@
 //! A module that provides useful data structures along the runtime.
 mod input_fix;
 mod may_from;
+pub mod notifier;
 mod strings;
 mod surely_unwrap;
 mod verbose;
