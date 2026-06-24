@@ -1,20 +1,37 @@
 use clap::Args;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// New subcommand.
 #[derive(Debug, Args)]
 pub struct New {
     /// Artifact of the project being created (ignore with '--no-artifact').
     #[arg(value_name = "ART")]
-    artifact: Option<String>,
+    project_artifact: Option<String>,
 
     /// Final destination of the new project (`artifact` as default).
-    #[arg(long, value_name = "P")]
-    path: Option<PathBuf>,
+    #[arg(long = "path", value_name = "P")]
+    project_path: Option<PathBuf>,
 
     /// Ignore artifact requirement.
-    #[arg(long)]
-    no_artifact: bool,
+    #[arg(long = "no-artifact")]
+    ignore_artifact: bool,
+}
+
+impl New {
+    /// Returns the optional artifact field.
+    pub fn artifact(&self) -> Option<&str> {
+        self.project_artifact.as_deref()
+    }
+
+    /// Returns the optional path destination.
+    pub fn path(&self) -> Option<&Path> {
+        self.project_path.as_deref()
+    }
+
+    /// If the `--no-artifact` flag is toggle on.
+    pub fn no_artifact(&self) -> bool {
+        self.ignore_artifact
+    }
 }
 
 #[cfg(test)]
@@ -44,41 +61,39 @@ mod tests {
             Self(subcmd)
         }
 
-        /// Returns an option over the [`New`]'s `artifact` field.
-        fn artifact(&self) -> Option<&str> {
-            self.0.artifact.as_deref()
+        /// Asserts if the self artifact is equals to the `expected` param.
+        fn assert_artifact(&self, expected: Option<&str>) -> &Self {
+            assert_eq!(self.0.artifact(), expected);
+            self
         }
 
-        /// Returns the [`New`]'s `no_artifact` field.
-        fn no_artifact(&self) -> bool {
-            self.0.no_artifact
+        /// Asserts if the self artifact is equals to the `expected` param.
+        fn assert_no_artifact(&self, expected: bool) -> &Self {
+            assert!(self.0.no_artifact() == expected);
+            self
         }
 
-        /// Returns the [`New`]'s `path` field.
-        fn path(&self) -> Option<&Path> {
-            self.0.path.as_deref()
+        /// Asserts if the self path is equals to the `expected` param.
+        fn assert_path(&self, expected: Option<&str>) -> &Self {
+            assert_eq!(self.0.path(), expected.map(Path::new));
+            self
         }
     }
 
     #[test]
-    fn artifact_and_no_artifact() {
-        let mut new: NewTest;
-        new = NewTest::new([]);
-        assert!(new.artifact().is_none() && !new.no_artifact());
-        new = NewTest::new(["my-artifact"]);
-        assert_eq!(new.artifact(), Some("my-artifact"));
-        assert!(!new.no_artifact());
-        new = NewTest::new(["my-artifact", "--no-artifact"]);
-        assert_eq!(new.artifact(), Some("my-artifact"));
-        assert!(new.no_artifact());
-    }
-
-    #[test]
-    fn path() {
-        let mut new: NewTest;
-        new = NewTest::new([]);
-        assert_eq!(new.path(), None);
-        new = NewTest::new(["--path", "my/cool/path"]);
-        assert_eq!(new.path(), Some(Path::new("my/cool/path")));
+    fn new_subcommand() {
+        NewTest::new([])
+            .assert_artifact(None)
+            .assert_path(None)
+            .assert_no_artifact(false);
+        NewTest::new(["my-project"])
+            .assert_artifact(Some("my-project"))
+            .assert_path(None)
+            .assert_no_artifact(false);
+        NewTest::new(["my-project", "--path", "other/path"])
+            .assert_artifact(Some("my-project"))
+            .assert_path(Some("other/path"))
+            .assert_no_artifact(false);
+        NewTest::new(["--no-artifact"]).assert_no_artifact(true);
     }
 }
