@@ -1,7 +1,12 @@
+mod flags;
+pub mod subcommands;
+
 use clap::{
-    Parser, Subcommand,
+    Parser,
     builder::{Styles, styling::AnsiColor},
 };
+pub use flags::GlobalFlags;
+use subcommands::AppSubcommands;
 
 /// Styles used along the app struct.
 const STYLE: Styles = Styles::styled()
@@ -26,22 +31,4 @@ pub struct App {
     /// The global flags being used.
     #[command(flatten)]
     flags: GlobalFlags,
-}
-
-/// All available subcommand.
-#[derive(Subcommand, Debug)]
-pub enum AppSubcommands {
-    /// Does 'a' related things.
-    AStuff,
-
-    /// Does 'b' related things.
-    BStuff,
-}
-
-/// All available global flags.
-#[derive(Parser, Debug)]
-struct GlobalFlags {
-    /// If the operation should be forced.
-    #[arg(long)]
-    force: bool,
 }
