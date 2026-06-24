@@ -1,4 +1,4 @@
-use crate::utils::Verbose;
+use crate::utils::{Verbose, styler::Styler};
 use clap::{
     builder::StyledStr,
     error::{ContextKind, ContextValue, Error as ClapError, ErrorKind, RichFormatter},
@@ -105,16 +105,18 @@ impl AppParseFail {
 impl Verbose for SureError {
     fn get_verbose_message(&self) -> Option<Cow<'_, str>> {
         Some(match self {
-            Self::InvalidSubcommand(_) | Self::UndefinedInvalidSubcommand => {
-                Cow::Borrowed("Use {} for a detailed overview")
-            }
-            Self::MissingSubcommand => Cow::Owned(format!("Consider using {}.", "jsmk help")),
+            Self::InvalidSubcommand(_)
+            | Self::UndefinedInvalidSubcommand
+            | Self::MissingSubcommand => Cow::Owned(format!(
+                "Consider using {} to see available commands.",
+                "jsmk --help".command_style()
+            )),
         })
     }
 }
 
 impl SureError {
-    /// This functions builds a [`SureError`] variant based on the [`ContextValue`] returned when
+    /// This function builds a [`SureError`] variant based on the [`ContextValue`] returned when
     /// calling [`ClapError::get`]:
     /// - [`Some`] variant of [`ContextValue::String`] => [`SureError::InvalidSubcommand`] with the
     ///   inner name
