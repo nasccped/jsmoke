@@ -5,5 +5,5 @@
 mod app;
 pub mod error;
 
-pub use app::App;
+pub use app::{App, subcommands};
 pub use error::AppParseFail;
