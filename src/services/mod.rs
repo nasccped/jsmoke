@@ -19,6 +19,7 @@ impl AppService {
         match fail {
             AppParseFail::IsError(error) => {
                 notifier.notify_failure(&error);
+                notifier.notify_verbose(&error);
                 ExitCode::FAILURE
             }
             AppParseFail::ActionCall(action) => {
