@@ -10,7 +10,7 @@ pub trait IntoBrightWhite {
     fn into_bright_white(&self) -> ColoredString;
 }
 
-impl<T: Notifiable> IntoBrightWhite for T {
+impl<T: Notifiable + ?Sized> IntoBrightWhite for T {
     fn into_bright_white(&self) -> ColoredString {
         self.get_notify_message().bright_white()
     }

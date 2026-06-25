@@ -52,7 +52,7 @@ impl Notifier {
 
     /// Notify success cases to `stdout` (even when `is_err` field is set to true - consider using
     /// [`Notifier::notify_failure`] or [`Notifier::notify_simple`] if necessary).
-    pub fn notify_success(&self, item: &impl Notifiable) {
+    pub fn notify_success(&self, item: &dyn Notifiable) {
         println!("{} {}", Tags::Done, item.into_bright_white());
     }
 
@@ -60,7 +60,7 @@ impl Notifier {
     ///
     /// *Note:* Since it's an error, all other calls ([`Notifier::notify_success`] except) will
     /// print to `stderr` too.
-    pub fn notify_failure(&mut self, item: &impl Notifiable) {
+    pub fn notify_failure(&mut self, item: &dyn Notifiable) {
         self.toggle_error();
         eprintln!("{} {}", Tags::Fail, item.into_bright_white());
     }
@@ -69,7 +69,7 @@ impl Notifier {
     /// inner field.
     ///
     /// Consider changing it with the [`Notifier::toggle_error`] function.
-    pub fn notify_warning(&self, item: &impl Notifiable) {
+    pub fn notify_warning(&self, item: &dyn Notifiable) {
         let message = format!("{} {}", Tags::Warn, item.into_bright_white());
         local_print(self, message);
     }
@@ -87,7 +87,7 @@ impl Notifier {
     /// Note that this function can also do nothing since [`Verbose::get_verbose_message`] returns
     /// an [`Option`] over [`Cow`], where [`None`] means `no message`. Make sure to return a
     /// message when implementing it to some type.
-    pub fn notify_verbose(&self, item: &impl Verbose) {
+    pub fn notify_verbose(&self, item: &dyn Verbose) {
         if let Some(message) = item.get_verbose_message() {
             local_print(self, format!("\n{}\n", message));
         }
