@@ -7,7 +7,7 @@
 mod _private;
 
 use super::Verbose;
-use crate::cli::AppParseFail;
+use crate::{cli::AppParseFail, services::error::ServiceParseError};
 use _private::{IntoBrightWhite, Tags};
 use std::{borrow::Cow, fmt::Display};
 
@@ -36,6 +36,12 @@ impl From<&AppParseFail> for Notifier {
         Self {
             is_err: value.is_err(),
         }
+    }
+}
+
+impl From<&ServiceParseError<'_>> for Notifier {
+    fn from(_: &ServiceParseError<'_>) -> Self {
+        Self { is_err: true }
     }
 }
 
