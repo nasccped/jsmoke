@@ -58,8 +58,8 @@ impl<'a> From<&'a str> for CommandStyle<'a> {
         for m in SIMPLE_REGEX.captures_iter(value) {
             let kind = match m.get_match().as_str() {
                 x if x.is_quoted() => Kind::String(x),
-                x if expecting_cmd(&v) => Kind::Command(x),
                 x if x.starts_with("-") => Kind::Flag(x),
+                x if expecting_cmd(&v) => Kind::Command(x),
                 x if x.is_repetition_of("|") => Kind::Or(x),
                 x if x.is_repetition_of("&") => Kind::And(x),
                 x => Kind::Value(x),
