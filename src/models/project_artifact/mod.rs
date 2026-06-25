@@ -7,7 +7,7 @@ use std::{borrow::Cow, sync::LazyLock};
 
 /// The [`Regex`] used for valid [`ProjectArtifact`] matching.
 static PROJECT_ARTIFACT_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r#"^[a-z|A-Z][\w]*(?:-[a-z|A-Z][\w]*)*$"#).unwrap());
+    LazyLock::new(|| Regex::new(r#"^[a-z|A-Z][\w]*(?:-[a-z|A-Z][\w]+)*$"#).unwrap());
 
 /// The minimum str length for a [`ProjectArtifact`] item (counts after-fix chars only).
 const PROJECT_ARTIFACT_MINIMUM_LENGTH: usize = 4;
