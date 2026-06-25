@@ -5,7 +5,14 @@ mod output;
 use colored::{ColoredString, Colorize};
 use command_style::CommandStyle;
 pub use output::StylerOutput;
-use std::fmt::Display;
+use std::ops::Deref;
+use std::{fmt::Display, sync::LazyLock};
+
+/// Tick item for reusable formatting.
+static TICK: LazyLock<ColoredString> = LazyLock::new(|| "`".bright_white());
+
+/// Quote item for reusable formatting.
+static QUOTE: LazyLock<ColoredString> = LazyLock::new(|| "'".bright_white());
 
 /// Apply different kind of styles for any [`String`] compatible.
 pub trait Styler: Display {
@@ -19,6 +26,17 @@ pub trait Styler: Display {
     /// Gets the self item as strong style (bright white).
     fn strong_style(&self) -> StylerOutput<ColoredString> {
         StylerOutput::Item(self.to_string().bright_white().bold())
+    }
+
+    /// Gets the self item as number style (bright green).
+    fn number_style(&self) -> StylerOutput<ColoredString> {
+        StylerOutput::Item(self.to_string().bright_green())
+    }
+
+    /// Gets the self item as suggestion style (cyan with white quotes).
+    fn suggestion_style(&self) -> StylerOutput<String> {
+        let q = QUOTE.deref();
+        StylerOutput::Item(format!("{}{}{}", q, self.to_string().cyan(), q))
     }
 }
 
