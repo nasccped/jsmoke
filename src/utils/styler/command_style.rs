@@ -2,7 +2,7 @@
 use crate::utils::StringUtils;
 use colored::Colorize;
 use regex::Regex;
-use std::{fmt::Display, sync::LazyLock};
+use std::{fmt::Display, ops::Deref, sync::LazyLock};
 
 /// Style behavior for command-like prompting, just like:
 /// ```sh
@@ -72,14 +72,14 @@ impl<'a> From<&'a str> for CommandStyle<'a> {
 
 impl<'a> Display for CommandStyle<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let tick = "`".bright_white();
+        let t = super::TICK.deref();
         let cmd = self
             .0
             .iter()
             .map(|kind| kind.to_string())
             .collect::<Vec<String>>()
             .join(" ");
-        write!(f, "{}{}{}", tick, cmd, tick)
+        write!(f, "{}{}{}", t, cmd, t)
     }
 }
 
