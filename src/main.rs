@@ -1,7 +1,6 @@
 mod cli;
 mod models;
 mod services;
-mod shared_models;
 mod utils;
 
 use clap::Parser;
