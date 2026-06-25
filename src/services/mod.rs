@@ -1,13 +1,55 @@
-use crate::{cli::AppParseFail, utils::notifier::Notifier};
+pub mod error;
+mod new_service;
+mod service_variant;
+
+use crate::{
+    cli::{App, AppParseFail, subcommands::AppSubcommands},
+    services::error::ServiceParseError,
+    utils::notifier::Notifier,
+};
+use new_service::NewService;
+use service_variant::AppServiceVariant;
 use std::{
     ops::Deref,
     process::{self, ExitCode},
 };
 
 /// Does the [`crate::cli::App`] runtime stuff.
-pub struct AppService;
+pub struct AppService<'a> {
+    /// If the operation is being verbose.
+    verbose: bool,
 
-impl AppService {
+    /// If the operation is being forced.
+    force: bool,
+
+    /// Service variant to run.
+    service: AppServiceVariant<'a>,
+}
+
+impl<'a> TryFrom<&'a App> for AppService<'a> {
+    type Error = ServiceParseError<'a>;
+
+    fn try_from(value: &'a App) -> Result<Self, Self::Error> {
+        let verbose = value.is_verbose();
+        let force = value.is_forced();
+        let service = match value.subcommand() {
+            AppSubcommands::New(cmd) => NewService::try_from(cmd),
+        };
+        service
+            .map(|srvc| Self {
+                verbose,
+                force,
+                service: AppServiceVariant::from(srvc),
+            })
+            .map_err(|err| {
+                let mut spe = ServiceParseError::from(err);
+                spe.set_verbose(verbose);
+                spe
+            })
+    }
+}
+
+impl<'a> AppService<'a> {
     /// Handle the [`AppParseFail`] returned from [`clap::Parser::try_parse`] function.
     ///
     /// The reason of this error handling is explained at [`AppParseFail`] documentation.
