@@ -1,9 +1,11 @@
 //! Styling related content.
 mod command_style;
+mod list_style;
 mod output;
 
 use colored::{ColoredString, Colorize};
 use command_style::CommandStyle;
+pub use list_style::ListStyle;
 pub use output::StylerOutput;
 use std::ops::Deref;
 use std::{fmt::Display, sync::LazyLock};
@@ -37,6 +39,21 @@ pub trait Styler: Display {
     fn suggestion_style(&self) -> StylerOutput<String> {
         let q = QUOTE.deref();
         StylerOutput::Item(format!("{}{}{}", q, self.to_string().cyan(), q))
+    }
+
+    /// Gets the self item as term style (italic).
+    fn term_style(&self) -> StylerOutput<ColoredString> {
+        StylerOutput::Item(self.to_string().italic())
+    }
+
+    /// Gets the self item as a note block (with tag).
+    fn note_style(&self) -> StylerOutput<String> {
+        StylerOutput::Item(format!("{} {}", "Note:".bright_cyan(), self))
+    }
+
+    /// A style reserved only for special cases (bright yellow).
+    fn special_style(&self) -> StylerOutput<ColoredString> {
+        StylerOutput::Item(self.to_string().bright_yellow())
     }
 }
 
