@@ -5,20 +5,21 @@ mod output;
 use colored::{ColoredString, Colorize};
 use command_style::CommandStyle;
 pub use output::StylerOutput;
-use std::ops::Deref;
+use std::fmt::Display;
 
 /// Apply different kind of styles for any [`String`] compatible.
-pub trait Styler: Deref<Target = str> {
+pub trait Styler: Display {
     /// Gets the self item as a command style.
     fn command_style(&self) -> StylerOutput<String> {
-        let result = CommandStyle::from(self.as_ref());
+        let temp = self.to_string();
+        let result = CommandStyle::from(temp.as_str());
         StylerOutput::Item(result.to_string())
     }
 
     /// Gets the self item as strong style (bright white).
     fn strong_style(&self) -> StylerOutput<ColoredString> {
-        StylerOutput::Item(self.bright_white().bold())
+        StylerOutput::Item(self.to_string().bright_white().bold())
     }
 }
 
-impl<T: Deref<Target = str>> Styler for T {}
+impl<T: Display> Styler for T {}
