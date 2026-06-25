@@ -16,6 +16,7 @@ const PROJECT_ARTIFACT_MINIMUM_LENGTH: usize = 4;
 const PROJECT_ARTIFACT_MAXIMUM_LENGTH: usize = 30;
 
 /// Project artifact wrapper.
+#[derive(Debug)]
 pub enum ProjectArtifact<'a> {
     /// When the provided string is an already valid artifact (for _'code version'_).
     Valid(&'a str),
@@ -111,7 +112,7 @@ impl<'a> ProjectArtifact<'a> {
     ///    variant)
     /// 2. this function doesn't detects previous checks done at [`ProjectArtifact::try_from`]
     ///    function such as empty string, not matching string, etc...
-    fn potential_error(value: Cow<'a, str>) -> Option<ProjectArtifactParseError> {
+    fn potential_error(value: Cow<'a, str>) -> Option<ProjectArtifactParseError<'a>> {
         match value.as_ref() {
             // reserved
             s if Reserveds::is_reserved(s) => Some(ProjectArtifactParseError::Reserved(value)),
