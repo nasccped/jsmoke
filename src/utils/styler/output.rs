@@ -20,7 +20,7 @@ impl From<ListStyle> for StylerOutput<String> {
             if is_ordered {
                 format!("{}.", ind).cyan()
             } else {
-                format!("+").cyan()
+                "*".cyan()
             }
         });
         let items = items
