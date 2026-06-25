@@ -5,7 +5,8 @@ use clap::{
     Parser,
     builder::{Styles, styling::AnsiColor},
 };
-pub use flags::GlobalFlags;
+use flags::GlobalFlags;
+use std::ops::Deref;
 use subcommands::AppSubcommands;
 
 /// Styles used along the app struct.
@@ -31,4 +32,18 @@ pub struct App {
     /// The global flags being used.
     #[command(flatten)]
     flags: GlobalFlags,
+}
+
+impl App {
+    /// Returns the subcommand being used.
+    pub fn subcommand(&self) -> &AppSubcommands {
+        &self.subcommand
+    }
+}
+
+impl Deref for App {
+    type Target = GlobalFlags;
+    fn deref(&self) -> &Self::Target {
+        &self.flags
+    }
 }
