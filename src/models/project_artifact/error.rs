@@ -13,41 +13,47 @@ pub enum ProjectArtifactParseError<'a> {
 
     /// When an empty/whitespace string is passed as artifact name.
     #[error("the project artifact was expected but not provided")]
-    NoNameProvided,
+    NoArtifactProvided,
 
     /// When the given artifact name doesn't follows the [`super::PROJECT_ARTIFACT_REGEX`] rules.
-    #[error("the project artifact contains an invalid pattern ({})", .0)]
+    #[error("given artifact refers to an invalid pattern ({})", .0)]
     InvalidPattern(&'a str),
 
-    /// When the artifact name result in a reserved word.
-    ///
-    /// This variant takes a [`Cow`] since it's type is used to check if the artifact name was
-    /// fixed.
-    #[error(
-        "the {} a reserved name ({})",
-        match .0 {
-            Cow::Owned(_) => "fixed project artifact results in",
-            _ => "project artifact is",
-        },
-        .0
-    )]
-    Reserved(Cow<'a, str>),
+    /// When the provided artifact name refers to a reserved word.
+    #[error(transparent)]
+    Reserved(ReservedState),
 
     /// When the name is too short (less than [`super::PROJECT_ARTIFACT_MINIMUM_LENGTH`] chars
     /// length).
-    #[error("the project artifact is too short ({})", .0)]
-    ShortName(Cow<'a, str>),
+    #[error("the project artifact is too short ({} chars long)", .0)]
+    ShortName(usize),
 
     /// When the name is too long (greater than [`super::PROJECT_ARTIFACT_MINIMUM_LENGTH`] chars
     /// length).
-    #[error("the project artifact is too long ({})", .0)]
-    LongName(Cow<'a, str>),
+    #[error("the project artifact is too long ({} chars long)", .0)]
+    LongName(usize),
+}
+
+/// Refers to the [`ProjectArtifactParseError::Reserved`] variant inner state.
+#[derive(thiserror::Error, Debug)]
+pub enum ReservedState {
+    /// Means that the artifact name was valid but it refers to a reserved word, like when passing
+    /// `integer` or `class` as artifact name.
+    #[error("the project artifact is a reserved name ({})", .0)]
+    NotFixed(String),
+
+    /// Means that the artifact name was fixed and now, it refers to a reserved word, like as:
+    /// - `inter-face` turns into `interface`
+    /// - `pri-va-te` turns into `private`
+    /// - _and so on..._
+    #[error("the fixed project artifact results in a reserved name ({})", .0)]
+    Fixed(String),
 }
 
 impl<'a> Verbose for ProjectArtifactParseError<'a> {
     fn get_verbose_message(&self) -> Option<Cow<'_, str>> {
         let message = match self {
-            Self::CompoundName | Self::NoNameProvided => format!(
+            Self::CompoundName | Self::NoArtifactProvided => format!(
                 "Consider passing a simple name such as {}. \n\
                 You can also use {} flag to skip artifact setting.",
                 "my-app".suggestion_style(),
@@ -84,7 +90,7 @@ impl<'a> Verbose for ProjectArtifactParseError<'a> {
                     "(run/comp)time".term_style(),
                     styled
                 );
-                if matches!(res, Cow::Owned(_)) {
+                if matches!(res, ReservedState::Fixed(_)) {
                     let note = format!(
                         "this check is done after artifact fixing, so\n\
                         the {} can be fixed to {} and turn into a reserved\n\
@@ -112,40 +118,8 @@ impl<'a> Verbose for ProjectArtifactParseError<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::{super::ProjectArtifact, ProjectArtifactParseError};
-
-    /// Test purpose struct.
-    struct ErrTester(ProjectArtifactParseError<'static>);
-
-    impl ErrTester {
-        /// Creates a new [`ErrTester`] with the inner value.
-        fn new(value: &'static str) -> Self {
-            match ProjectArtifact::try_from(value) {
-                Err(err) => Self(err),
-                Ok(val) => panic!("`Err` was expected but got {:?}", val),
-            }
-        }
-
-        /// Asserts if the provided match is true.
-        fn assert_match<F>(&self, matching: F)
-        where
-            F: FnOnce(&ProjectArtifactParseError<'static>) -> bool,
-        {
-            assert!(matching(&self.0));
-        }
-    }
-
-    #[test]
-    fn err_testing() {
-        type E = ProjectArtifactParseError<'static>;
-        ErrTester::new("a b").assert_match(|err| matches!(err, E::CompoundName));
-        ErrTester::new("abc def").assert_match(|err| matches!(err, E::CompoundName));
-        ErrTester::new("").assert_match(|err| matches!(err, E::NoNameProvided));
-        ErrTester::new("  ").assert_match(|err| matches!(err, E::NoNameProvided));
-        ErrTester::new("in.valid").assert_match(|err| matches!(err, E::InvalidPattern(_)));
-        ErrTester::new("0numberstart").assert_match(|err| matches!(err, E::InvalidPattern(_)));
-        ErrTester::new("-startswithdash").assert_match(|err| matches!(err, E::InvalidPattern(_)));
-        ErrTester::new("endswithdash-").assert_match(|err| matches!(err, E::InvalidPattern(_)));
-        ErrTester::new("non-letter?").assert_match(|err| matches!(err, E::InvalidPattern(_)));
-    }
+    // NOTE: There's no ProjectArtifactParseError testing anymore since all test stuff is done at
+    //       auxiliar modules (artifact.rs and conversions.rs).
+    //
+    //       This commend purpose is to remind future refactors!
 }
