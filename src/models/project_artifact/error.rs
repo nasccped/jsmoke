@@ -1,8 +1,103 @@
+use super::{
+    PROJECT_ARTIFACT_MAXIMUM_LENGTH as MAXIMUM_LENGTH,
+    PROJECT_ARTIFACT_MINIMUM_LENGTH as MINIMUM_LENGTH, PROJECT_ARTIFACT_REGEX as REGEX,
+};
 use crate::utils::{
     Verbose,
     styler::{ListStyle, Styler, StylerOutput},
 };
-use std::borrow::Cow;
+use std::{borrow::Cow, sync::LazyLock};
+
+/// Verbose message when refering to [`ProjectArtifactParseError::CompoundName`] or
+/// [`ProjectArtifactParseError::NoArtifactProvided`] variants.
+static COMPOUND_OR_EMPTY_VERBOSE: LazyLock<String> = LazyLock::new(|| {
+    format!(
+        "\
+        Consider passing a simple name such as {}. \n\
+        You can also use {} flag to skip artifact setting.",
+        "my-app".suggestion_style(),
+        "--no-artifact".command_style()
+    )
+});
+
+/// Verbose message when refering to [`ProjectArtifactParseError::InvalidPattern`] variant.
+static INVALID_PATTERN_VERBOSE: LazyLock<String> = LazyLock::new(|| {
+    let mut conditions = ListStyle::new_unordered();
+
+    conditions.set_left_padding(1);
+    conditions.push_items([
+        "should start and end with a letter",
+        "(can) contain dashes / capitalized",
+        "(can) contain numbers",
+    ]);
+
+    let styled_out: StylerOutput<String> = conditions.into();
+
+    format!(
+        "\
+        A valid artifact pattern can be expressed\n\
+        by the {} regex. In short:\n\
+        {}",
+        REGEX.as_str().term_style(),
+        styled_out
+    )
+});
+
+/// Function that returns the verbose message when refering to
+/// [`ProjectArtifactParseError::InvalidPattern`] variant.
+///
+/// A function should be used (instead of [`LazyLock`]) since this verbose message expects a
+/// conditional param which changes the message output.
+///
+/// This function is capitalized to follow the look and fell of
+/// [`ProjectArtifactParseError::get_verbose_message`] function body.
+#[allow(non_snake_case)]
+fn RESERVED_VERBOSE(is_fixed: bool) -> String {
+    let styled: StylerOutput<String> = {
+        let mut l = ListStyle::new_ordered();
+        l.set_left_padding(1);
+        l.push_items(["keywords", "common types", "well know names", "etc"]);
+        l.into()
+    };
+    let mut message = format!(
+        "\
+        To avoid {} undefined behavior, java environment\n\
+        reserved words aren't allowed. This refers to:\n\
+        {}",
+        "(run/comp)time".term_style(),
+        styled
+    );
+    if is_fixed {
+        let note = format!(
+            "\
+            this check is done {} artifact fixing, so\n\
+            the {} can be fixed to {} and turn into a reserved\n\
+            word.",
+            "after".strong_style(),
+            "ja-va".special_style(),
+            "java".special_style()
+        )
+        .note_style();
+        message.push_str(format!("\n\n{}", note).as_str())
+    }
+    message
+}
+
+/// Verbose message when refering to [`ProjectArtifactParseError::ShortName`] variant.
+static SHORT_NAME_VERBOSE: LazyLock<String> = LazyLock::new(|| {
+    format!(
+        "The project artifact must be at least {} chars long!",
+        MINIMUM_LENGTH.number_style(),
+    )
+});
+
+/// Verbose message when refering to [`ProjectArtifactParseError::LongName`] variant.
+static LONG_NAME_VERBOSE: LazyLock<String> = LazyLock::new(|| {
+    format!(
+        "The project artifact must contains less than {} chars!",
+        (MAXIMUM_LENGTH + 1).number_style()
+    )
+});
 
 /// Possible fails when trying to parse a [`super::ProjectArtifact`] from a string slice.
 #[derive(thiserror::Error, Debug)]
@@ -50,67 +145,22 @@ pub enum ReservedState {
     Fixed(String),
 }
 
+impl ReservedState {
+    /// Returns if the `self` item refers to the [`ReservedState::Fixed`] variant.
+    #[inline]
+    fn is_fixed(&self) -> bool {
+        matches!(self, Self::Fixed(_))
+    }
+}
+
 impl<'a> Verbose for ProjectArtifactParseError<'a> {
     fn get_verbose_message(&self) -> Option<Cow<'_, str>> {
         let message = match self {
-            Self::CompoundName | Self::NoArtifactProvided => format!(
-                "Consider passing a simple name such as {}. \n\
-                You can also use {} flag to skip artifact setting.",
-                "my-app".suggestion_style(),
-                "--no-artifact".command_style()
-            ),
-            Self::InvalidPattern(_) => {
-                let mut conditions = ListStyle::new_unordered();
-                conditions.set_left_padding(1);
-                conditions.push_items([
-                    "starts with a letter",
-                    "contain dashes/capitalized",
-                    "contain numbers",
-                ]);
-                let styled_out: StylerOutput<String> = conditions.into();
-                format!(
-                    "A valid artifact pattern can be expressed\n\
-                    by the {} regex. In short:\n\
-                    {}",
-                    super::PROJECT_ARTIFACT_REGEX.as_str().term_style(),
-                    styled_out
-                )
-            }
-            Self::Reserved(res) => {
-                let styled: StylerOutput<String> = {
-                    let mut l = ListStyle::new_ordered();
-                    l.set_left_padding(1);
-                    l.push_items(["keywords", "common types", "well know names", "etc"]);
-                    l.into()
-                };
-                let mut message = format!(
-                    "To avoid {} or management undefined behavior, java\n\
-                    environment reserved words aren't allowed. This refers to:\n\
-                    {}",
-                    "(run/comp)time".term_style(),
-                    styled
-                );
-                if matches!(res, ReservedState::Fixed(_)) {
-                    let note = format!(
-                        "this check is done after artifact fixing, so\n\
-                        the {} can be fixed to {} and turn into a reserved\n\
-                        word.",
-                        "ja-va".special_style(),
-                        "java".special_style()
-                    )
-                    .note_style();
-                    message.push_str(format!("\n\n{}", note).as_str())
-                }
-                message
-            }
-            Self::ShortName(_) => format!(
-                "The project artifact must be at least {} char long!",
-                super::PROJECT_ARTIFACT_MINIMUM_LENGTH.number_style(),
-            ),
-            Self::LongName(_) => format!(
-                "The project artifact must contains less than {} chars!",
-                (super::PROJECT_ARTIFACT_MAXIMUM_LENGTH + 1).number_style()
-            ),
+            Self::CompoundName | Self::NoArtifactProvided => COMPOUND_OR_EMPTY_VERBOSE.clone(),
+            Self::InvalidPattern(_) => INVALID_PATTERN_VERBOSE.clone(),
+            Self::Reserved(res) => RESERVED_VERBOSE(res.is_fixed()),
+            Self::ShortName(_) => SHORT_NAME_VERBOSE.clone(),
+            Self::LongName(_) => LONG_NAME_VERBOSE.clone(),
         };
         Some(Cow::Owned(message))
     }
